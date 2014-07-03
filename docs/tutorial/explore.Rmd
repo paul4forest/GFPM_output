@@ -1,0 +1,46 @@
+```{r, echo=FALSE}
+# Set same path for knitr evaluation as for interactive use
+opts_knit$set(root.dir = '../..')
+```
+
+```{r}
+library(plyr)
+source("code/func.r")
+```
+
+Explore GFPM scenarios
+=====================
+What scenarios are available
+```{r}
+list.files("enddata", ".RDATA", full.names = TRUE) 
+```
+
+Load scenarios
+```{r}
+load("enddata/GFPM_Output_TTIP_with_sensitivity.RDATA")
+```
+
+Data summaries
+--------------
+### What products are demanded, supplied, produced or traded ?
+```{r}
+whatproducts = function(dtf){unique(dtf$Product)}
+dlply(allScenarios$entity, .(Element), whatproducts)[-2]
+```
+* IndRound is supplied and traded but not demanded, it's a primary product.
+* OthFbrPlp and WastePaper are supplied and traded but not demanded, they are primary products.
+* Fuelwood is both supplied and demanded it's both a primary and a final product.
+* Fuelwood is not the outcome of a production process.
+
+### What is the structure of "allScenarios"
+```{r}
+str(allScenarios)
+```
+
+Plots
+-----
+```{r}
+plotProdByReg("Sawnwood", "High")
+plotProdByReg("IndRound", "High")
+```
+

@@ -1,0 +1,92 @@
+Explore TTIP dataset
+=====================
+```{r, echo=FALSE, warning=FALSE}
+# Set same path for knitr evaluation as for interactive use
+opts_knit$set(root.dir = '../..')
+```
+
+Load a dataset containing GFPM scenarios
+```{r}
+library(plyr)
+library(xtable)
+library(ggplot2)
+load("enddata/GFPM_Output_TTIP_with_sensitivity.RDATA")
+```
+
+
+Sensitivity analysis 
+---------------------
+Plot scenarios changes
+
+```{r}
+product = "Sawnwood"
+element = "Demand"
+aggregates=subset(allScenarios$aggregates, Scenario !="LowTTIP")
+dtf = subset(aggregates, Product==product)
+
+
+p = ggplot(data = subset(dtf,Element == element&Scenario!="HighTTIP")) +
+    aes(x=Period, y=Volume, colour=GFPM_REG) +
+    geom_line(aes(linetype = Scenario)) + 
+#     geom_point(aes(shape=Scenario)) +
+#     geom_point(data = subset(dtf,Element == element&Scenario=="HighTTIP"),
+#                shape=15, size=4) +
+    geom_point(data = subset(dtf,Element == element&Scenario=="HighTTIP"),
+               aes(shape=Scenario), size=4) +
+    ggtitle(paste(product, element)) +
+    theme(legend.position = "bottom") 
+print(p)
+```
+
+### Make a similar  graph for US - EU28 - Rest of the world
+
+
+Comparison with Felbermayr 2013
+-------------------------------
+Felbermayr 2013 reports a simulation of US and Germany's export values by 2025 for 3 forest related sectors: "forestry", "wood products" and "paper". 
+
+What are the export products?
+```{r}
+unique(allScenarios$entity$Product[allScenarios$entity$Element=="Export"]) 
+``` 
+
+We will aggregate the products as such:
+* __Forestry__ :  IndRound, 
+* __Wood Products__ :  "Fuelwood" "Sawnwood"   "Plywood"    "ParticleB"  "FiberB"  
+* __Paper Products__ : "MechPlp"  "ChemPlp"    "OthFbrPlp"  "WastePaper" "Newsprint"  "PWPaper"    "OthPaper"  
+    
+US and Germany's exports in forest products in 2025 (period 4 in our simulation). We are looking at percentage changes in volume between the base and the HighTTIP scenarios.
+```{r results='asis'}
+USDEexp = subset(allScenarios$entity,
+                 Country%in% c("United States of America","Germany") &
+                     Element=="Export" & 
+                     Period == 4 &
+                     Scenario %in% c("Base", "HighTTIP"),
+                 select=c(Scenario, Period, Product, Country, Volume))
+USDEexp = reshape(USDEexp,
+                  idvar = c("Period", "Product", "Country"),
+                  timevar = "Scenario", times=c("Base", "HighTTIP"),
+                  direction="wide")
+USDEexp = transform(USDEexp, expchange = round((Volume.HighTTIP - Volume.Base)/ Volume.Base *100,2))
+
+USDEexp_for_JB = reshape(subset(USDEexp), 
+                  idvar = c("Period", "Product"),
+                  timevar = "Country",
+                  direction="wide")
+
+USDEexp = reshape(subset(USDEexp,select=-c(Volume.Base,Volume.HighTTIP)), 
+                  idvar = c("Period", "Product"),
+                  timevar = "Country",
+                  direction="wide")
+names(USDEexp) = c("Period", "Product", "US exports %", "Germany exports %")
+
+
+print(xtable(USDEexp, caption = "Percentage change in exports between the 
+             base and HighTTIP scenarios on period 4 (2015)"), 
+      type = "html", include.rownames = FALSE) 
+USDEexp$ProductAgg[USDEexp$Product %in%
+                       c("Fuelwood", "Sawnwood", "Plywood", "ParticleB", "FiberB")] = "Wood Products"
+USDEexp$ProductAgg[USDEexp$Product == "IndRound"] = "Forestry"
+# USDEexp$ProductAgg[USDEexp$Product %in% c("MechPlp", "ChemPlp", "OthFbrPlp", "WastePaper",
+#                                           "Newsprint", "PWPaper", "OthPaper") = "Paper Products"
+```

@@ -1,0 +1,27 @@
+draft2013/
+.Rproj.user/
+*.dat
+*.DAT
+*.QPS
+*.OUT
+*.BAT
+*.RDATA
+*.xlsx
+*.xls
+*.Rproj.user
+*.pdf
+*.html
+
+*.tex
+*.log
+*.synctex.gz
+*.tex
+*.nav
+*.snm
+*.toc
+
+# Ignore png images exept in the tutorial folder
+*.png
+!docs/tutorial/**/*
+
+.Rproj.user

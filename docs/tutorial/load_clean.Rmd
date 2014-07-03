@@ -1,0 +1,91 @@
+Example of load and clean functions
+===================================
+Below we demonstrate the use of load.r and clean.r to read PELPS data tables.
+
+* load.r
+ * Input: Raw PELPS text files (.DAT) stored in a .zip archive (or in a folder)
+ * Output: Raw data.frames stored in a .RDATA file 
+* clean.r
+ * Input: Raw data.frames stored in a .RDATA file
+ * Output: cleaned data.frames stored in a .RDATA file
+
+```{r, echo=FALSE, warning=FALSE}
+library(plyr)
+# Set same path for knitr evaluation as for interactive use
+opts_knit$set(root.dir = '..')
+```
+
+
+Load a scenario
+-----------------
+Load and save the base scenario from a zip archive to a RDATA file
+```{r}
+# Source the load script without runing it's main() function.
+options(run.load.main=FALSE)
+source("code/load.r")
+options(run.load.main=TRUE)
+savePELPSToRdata("PELPS 105Base", "zip")
+```
+
+Zip archives available
+```{r}
+list.files("rawdata", ".zip", full.names = TRUE) 
+```
+
+Raw RDATA files available
+```{r}
+list.files("rawdata", ".RDATA", full.names = TRUE) 
+```
+
+Clean a scenario
+----------------
+```{r}
+# Source the clean script without runing it's main() function.
+options(run.clean.main=FALSE)
+source("code/clean.r")
+options(run.clean.main=TRUE)
+baseScenario = clean("PELPS 105Base", "Base")
+```
+
+Cleaned RDATA files available
+```{r}
+list.files("enddata", ".RDATA", full.names = TRUE) 
+```
+
+Detail of clean functions
+-------------------------
+### Load raw PELPS tables from a .RDATA file
+```{r}
+print(load("rawdata/PELPS 105Base.RDATA"))
+llply(PELPS,head)
+```
+
+### Example using the function splittrade 
+```{r}
+PELPS2 = splittrade(PELPS)
+lapply(PELPS[c("trade")],nrow) #number of rows in PELPS
+lapply(PELPS2[c("trade", "import", "export")],nrow) #number of rows in PELPS2
+```
+
+### Example using the function reshapeLong
+```{r}
+head(PELPS$demand)
+demand = reshapeLong(PELPS$demand, "Demand")
+head(demand)
+```
+
+### Example using the function add product and country
+```{r}
+demand = addProductAndCountry(demand)
+head(demand)
+```
+
+### Example using reshapeLong and addProductAndCountry on World price
+```{r}
+wp = reshapeLong(PELPS$worldPrice, "World_Price")
+head(wp)
+wp = addProductAndCountry(wp)
+wp$World_Price = wp$Volume
+wp = wp[,c("Product_Code", "Product", "Period", "World_Price")]
+head(wp)
+```

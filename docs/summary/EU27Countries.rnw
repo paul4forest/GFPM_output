@@ -1,0 +1,63 @@
+\documentclass{scrartcl} % A wider text than  \documentclass{article} 
+
+% Configure hyper links
+\usepackage{hyperref} 
+\hypersetup{
+  colorlinks   = true, %Colours links instead of ugly boxes
+  urlcolor     = blue, %Colour for external hyperlinks
+  linkcolor    = black, %Colour of internal links
+  citecolor   = black %Colour of citations
+}
+
+\title{GFPM output summary for EU27 countries}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Graphs for European Countries for the scenario: 
+
+<<Load, echo=FALSE, results='asis', warning=FALSE>>=
+# More options, see http://yihui.name/knitr/options#chunk_options
+library(ggplot2)
+load("Y:/Macro/GFPM/R Pelps/EndData/GFPM_Output.rdata")
+cat(paste("\\paragraph{}{\\Large ",highScenario$scenarioName,"}", sep=""))
+@
+\end{abstract}
+
+\setcounter{tocdepth}{2}
+\tableofcontents 
+\newpage
+
+<<PlotEU27, echo=FALSE, results='asis', warning=FALSE, fig.pos="h">>=
+outNA = highScenario$entity
+outNA[is.na(outNA)] = 0
+
+# Loop to produce time series for each product and element and one curve per country 
+for (product in unique(outNA$Product)){
+    
+    # Display section title for this product    
+    cat(paste("\\section{",product,"}", sep=""))
+    dtf = subset(outNA, Product == product & EU27)
+
+    for (element in unique(dtf$Element)){
+        
+        # Display subsection title for this element
+        cat(paste("\\subsection{",element,"}"))
+        p = ggplot(data=subset(dtf,Element==element)) +
+            aes(x=Period, y=Volume, colour=Country, label = Country) +
+            ggtitle(paste(product, element, "in EU27 countries")) +
+            geom_line() + 
+
+            # Subset last period to print country labels on the curves
+            geom_text(data=subset(dtf,Element==element&Period==max(dtf$Period))) +
+            xlim(1,5.5)
+            theme(legend.position = "none") 
+        print(p)
+        
+    }    
+}
+@
+
+
+\end{document}

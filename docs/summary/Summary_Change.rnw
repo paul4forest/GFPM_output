@@ -1,0 +1,72 @@
+\documentclass{scrartcl} % A wider text than  \documentclass{article} 
+
+% \documentclass{beamer} % I would be nice to have a presentation format 
+% but I cannot mannage to make beamer work
+% \usepackage{default}
+
+\usepackage{hyperref} 
+\hypersetup{  % Configure hyper linkss
+  colorlinks   = true, %Colours links instead of ugly boxes
+  urlcolor     = blue, %Colour for external hyperlinks
+  linkcolor    = black, %Colour of internal links
+  citecolor   = black %Colour of citations
+}
+
+\title{GFPM output summary for TAFTA scenarios}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This documment compares summary figures of Consumption, Production, Import, Export, and Net Trade for the scenarios: 
+
+<<knitrOptions, echo=FALSE, results='asis', warning=FALSE>>=
+opts_knit$set(root.dir = '../..')
+@
+
+
+<<Load, echo=FALSE, results='asis', warning=FALSE>>=
+# More options, see http://yihui.name/knitr/options#chunk_options
+library(ggplot2)
+
+load("enddata/GFPM_Output_TTIP_with_sensitivity.RDATA")
+cat(paste("{\\large ",allScenarios$scenario$scenarioName,"}", sep=""))
+@
+\end{abstract}
+
+\setcounter{tocdepth}{2}
+\tableofcontents 
+\newpage
+
+<<GFPMSummary, echo=FALSE, results='asis', warning=FALSE, fig.pos="h">>=
+# Select only the base and high scenario 
+#   (The low scenario is very similar to the base one and is removed to simplify plots)
+# aggregates=subset(allScenarios$aggregates, Scenario%in% c("Base", "BaseHighElast"))
+aggregates=subset(allScenarios$aggregates, Scenario !="LowTTIP")
+
+# Loop to produce summary sheets, albeit without historicall data for the moment
+for (product in unique(aggregates$Product)){
+
+    # Display section title for this product    
+    cat(paste("\\section{",product,"}"))
+    dtf = subset(aggregates, Product==product)
+    for (element in unique(dtf$Element)){
+
+        # Display subsection title for this element
+        cat(paste("\\subsection{",element,"}"))
+        
+        # Plot Volume by period for each region and for the 2 scenarios
+        p = ggplot(data = subset(dtf,Element == element&Scenario!="HighTTIP")) +
+            aes(x=Period, y=Volume, colour=GFPM_REG) +
+            geom_line(aes(linetype = Scenario)) + 
+            geom_point(data = subset(dtf,Element == element&Scenario=="HighTTIP"),
+                       aes(shape=Scenario), size=4) +
+            ggtitle(paste(product, element)) +
+            theme(legend.position = "bottom") 
+        print(p)
+    }
+}
+
+@
+
+\end{document}
