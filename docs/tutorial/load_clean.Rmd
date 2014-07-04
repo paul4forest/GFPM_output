@@ -1,59 +1,112 @@
-Example of load and clean functions
+Tutorial explaining how to load and clean GFPM data
 ===================================
-Below we demonstrate the use of load.r and clean.r to read PELPS data tables.
-
-* load.r
- * Input: Raw PELPS text files (.DAT) stored in a .zip archive (or in a folder)
- * Output: Raw data.frames stored in a .RDATA file 
-* clean.r
- * Input: Raw data.frames stored in a .RDATA file
- * Output: cleaned data.frames stored in a .RDATA file
-
 ```{r, echo=FALSE, warning=FALSE}
 library(plyr)
 # Set same path for knitr evaluation as for interactive use
-opts_knit$set(root.dir = '..')
+opts_knit$set(root.dir = '../..')
 ```
 
 
-Load a scenario
------------------
-Load and save the base scenario from a zip archive to a RDATA file
+Call the load.R, clean.R and func.R scripts
 ```{r}
-# Source the load script without runing it's main() function.
-options(run.load.main=FALSE)
-source("code/load.r")
-options(run.load.main=TRUE)
+source("code/load.R")
+source("code/clean.R")
+source("code/func.R")
+```
+
+
+### Import GFPM data the fast way
+This command loads and cleans GFPM data, saves it in ./enddata:
+```{r load_and_clean, eval=FALSE}
+load_and_clean_gfpm_data(scenario_name = "base5") # Give it a scenario name of your choice
+load_and_clean_gfpm_data(scenario_name = "base5", compression="bzip2") # Give it a scenario name of your choice
+```
+If you are not interested in the internal workings of load.R and clean.R, 
+and if you only want to analyse results from one scenario,
+you can skip the rest of this document and jump to tutorial/explore.
+
+However if you want to analyse several scenarios combined, keep on reading.
+Below we demonstrate the use of the functions `savePELPSToRdata()` and `clean()`
+to read PELPS data tables.
+
+
+### Copy GFPM data in c:\PELPS\pelps with a function
+GFPM simulation results are stored in plain text
+format ".DAT" in the `C:\PELPS\pelps` folder. 
+After each scenario has run, we will copy this folder in an archive.
+
+In this example, we give the name "dummy" to the scenario
+```{r eval=FALSE}
+copy_pelps_folder(scenario_name = "dummy")
+```
+
+To save space, data can be compressed
+```{r eval=FALSE}
+copy_pelps_folder(scenario_name = "dummy", compression="bzip2")
+```
+
+Unfortunately zip compression is not available in writting, it can only be read by R.
+To use zip compression, follow the method "by hand"" below.
+
+### Copy GFPM data in c:\PELPS\pelps by hand
+ 1. Rename the folder "C:\PELPS\PELPS" to a name of your choice.
+ For example "my_scenario_name". 
+ 2. Copy the renamed PELPS folder to the \rawdata folder.
+   Optionally, you can compress this PELPS folder as a zip file: "my_scenario_name.zip"
+   and copy it to the rawdata folder.
+
+
+Load a scenario in R and save it to .RDATA
+-----------------------------------------
+* Input: Raw PELPS text files (.DAT) stored in a folder or .zip archive
+* Output: Raw data.frames stored in a .RDATA file 
+
+Save the base scenario without compression to a RDATA file
+```{r}
+savePELPSToRdata("base")
+```
+
+Save the base scenario from a bzip2 archive to a RDATA file
+```{r}
+savePELPSToRdata("base", compressed="bzip2")
+```
+
+
+Save the base scenario from a zip archive to a RDATA file
+```{r}
 savePELPSToRdata("PELPS 105Base", "zip")
 ```
 
-Zip archives available
+List Zip archives available
 ```{r}
 list.files("rawdata", ".zip", full.names = TRUE) 
 ```
 
-Raw RDATA files available
+
+List Raw RDATA files available
 ```{r}
 list.files("rawdata", ".RDATA", full.names = TRUE) 
 ```
 
 Clean a scenario
 ----------------
-```{r}
-# Source the clean script without runing it's main() function.
-options(run.clean.main=FALSE)
-source("code/clean.r")
-options(run.clean.main=TRUE)
-baseScenario = clean("PELPS 105Base", "Base")
-```
+The archive is transformed by adding column titles, 
+and translating product and country codes into product and country names. 
+available for analysis with R.
+* Input: Raw data.frames stored in a .RDATA file
+* Output: cleaned data.frames stored in a .RDATA file
 
-Cleaned RDATA files available
 ```{r}
-list.files("enddata", ".RDATA", full.names = TRUE) 
+source("code/clean.R")
+baseScenario = clean("PELPS 105Base.RDATA", "Base")
 ```
+The `baseScenario` object is a list of dataframe. 
+The command `str(baseScenario)` gives details about the structure and content of this data object. 
+Now you can explore the dataset in various ways. See the ./docs folder.
 
-Detail of clean functions
--------------------------
+
+Working examples of clean functions
+-----------------------------------
 ### Load raw PELPS tables from a .RDATA file
 ```{r}
 print(load("rawdata/PELPS 105Base.RDATA"))

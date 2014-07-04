@@ -5,9 +5,14 @@ The system converts raw GFPM output (text files .DAT) into dataframes. So that y
 __Software components__:
 You will need to install the GFPM and the R statisticall software. Links to the software components:
 * The GFPM model and its user manuals are available on [this page of the University of Wisconsin-Madison](http://labs.russell.wisc.edu/buongiorno/welcome/gfpm/).
-* The [R statistical program](http://www.r-project.org/)
+* The [R statistical software](http://www.r-project.org/)
 * A text editor, we have used [R-Studio](http://www.rstudio.com/products/rstudio/download/)
 * You may need to install [Rtools](http://cran.r-project.org/bin/windows/Rtools/), so that some file compression becomes available.
+* Command to install R packages:
+```
+install.packages(c("plyr", "ggplot2"))
+```
+
 
 __Data sources__: Data files are imported in the form of text files, named .DAT, see "input data" below.
 
@@ -15,45 +20,25 @@ __Authors__: Paul Rougieux and Ahmed Barkaoui
 
 __Institution__: European Forest Institute and INRA 
 
-License
--------
-This package is free and open source software, licensed under the [GNU GPL](http://www.gnu.org/copyleft/gpl.html).
+__License__: This package is free and open source software, 
+licensed under the [GNU GPL](http://www.gnu.org/copyleft/gpl.html).
 
 
 Tutorial
 ----------
 After a GFPM scenario has been run, simulation results are stored 
 in plain text format in the `C:\PELPS\PELPS` folder. 
-
-Import GFPM data the fast way:
-```
-source("code/do.r")
-import_gfpm_data("scenario_name") # Give it a scenario name of your choice
-```
-
-Import GFPM data the detailed way:
- 1. Rename the folder "C:\PELPS\PELPS" to a name of your choice.
- For example "my_scenario_name". 
- 2. Copy the renamed PELPS folder to the \rawdata folder.
-   Optionally, you can compress this PELPS folder as a zip file: "my_scenario_name.zip"
-   and copy it to the rawdata folder.
- 3. Load raw data into R data frames
-  * `source("code/load.r")`
-  * `savePELPSToRdata("my_scenario_name", "zip")`
- 4. Clean the data
-  * `source("code/clean.r")`
-  * `my_scenario = clean("my_scenario_name", "Short_name")`
- 5. Now you can explore the dataset in various ways. See the ./docs folder.
-   The `my_scenario` object is a list of dataframe. 
-   `str(my_scenario)` will give you some details about the content of this data object. 
+* How to load and prepare GFPM data: 
+   [load_clean.md](./docs/tutorial/load_clean.md) (github) or [load_clean.html](./docs/tutorial/load_clean.html) (local link).
+* How to visualise the content of a dataset [explore.md](./docs/tutorial/explore.md) (github) or [explore.html](./docs/tutorial/explore.html) ) (local link)
+* The `./docs` folder contains summary statistics, explanatory graphs and calculations
 
 
-* This tutorieal explains how the base scenario is loaded and cleaned: 
-   [clean_tutorial.md](./docs/tutorial/clean_tutorial.md) or [clean_tutorial.html](./docs/tutorial/clean_tutorial.html).
-*  See [explore.md](./docs/explore/explore.md)  or [explore.html](./docs/explore/explore.html) 
-   for a list of products supplied, produced and consumed. 
 
-The docs folder contains summary statistics, explanatory graphs and calculations
+The figure below illustrates the workflow. 
+
+![gfpm_output_data_processing_workflow](docs/methodology/gfpm_output_data_processing_workflow.jpg)
+
 
 
 Tests
@@ -126,7 +111,7 @@ Knitr creator Yihui explained [in a comment on this forum](http://stackoverflow.
 how to add a table of content to a Rmd file using the knit2html() function:
 ```
 library(knitr)
-knit2html('docs/tutorial/clean_tutorial.Rmd', options = c('toc', markdown::markdownHTMLOptions(TRUE)))
+knit2html('docs/tutorial/load_clean.Rmd', options = c('toc', markdown::markdownHTMLOptions(TRUE)))
 ```
 See [my blog post](http://paulremote.blogspot.fr/2014/01/add-table-of-content-to-html-files.html) on 
 how I followed the RSTUDIO advice to
@@ -134,10 +119,13 @@ how I followed the RSTUDIO advice to
 
 Changelog
 ---------
-August 2013: started writing scripts to import PELPS data
+August 2013: started writing scripts to import PELPS data.
 
 January 2014: 
-* Changed load.r to enable reading from zip files 
+* Changed load.r to enable reading from zip files. 
 * Used options(run.clean.main=FALSE) to decide whether to run the main clean function or not.
   The main clean function is not called from tests. 
 
+June-July 2014:
+* Modified the tutorial to explain how load.R and clean.R work.
+* Added a picture of the workflow in the readme.

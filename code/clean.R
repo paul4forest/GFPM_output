@@ -132,9 +132,9 @@ aggregateByGFPMRegions = function(otpt){
 # Clean # 
 #########
 # calls functions defined above
-# - Input loads a PELPS data frame from the file "scenarioName" for a scenario
+# - Input loads a PELPS data frame from the file "scenario_name" for a scenario
 # - Ouput is a list of tables for that scenario
-clean = function(fileName, scenarioName, path="rawdata/"){
+clean = function(fileName, scenario_name, path="rawdata/"){
     load(paste(path, fileName, sep=""))
     P = splittrade(PELPS)
     demand = reshapeLong(P$demand, "Demand")
@@ -160,13 +160,13 @@ clean = function(fileName, scenarioName, path="rawdata/"){
     wp = wp[,c("Product_Code", "Product", "Period", "World_Price")]
     
     # Add scenario name to the output, aggregate and price tables
-    output$Scenario = scenarioName
-    agg$Scenario = scenarioName
-    wp$Scenario = scenarioName
+    output$Scenario = scenario_name
+    agg$Scenario = scenario_name
+    wp$Scenario = scenario_name
     # print(names(output))
     
     # Put data.frames in a list
-    GFPMoutput = list(scenario = data.frame(scenarioName, fileName), 
+    GFPMoutput = list(scenario = data.frame(scenario_name, fileName), 
                       entity = output, aggregates = agg, worldPrices = wp)
     return(GFPMoutput)
 }
@@ -201,7 +201,7 @@ bindScenarios = function(dtf1,dtf2){
 ##############################################################
 clean_main_scenarios = function() {
     message("Cleaning main PELPS data for scenarios ...")
-    baseScenario = clean(fileName = "PELPS 105Base.RDATA", scenarioName = "Base")
+    baseScenario = clean(fileName = "PELPS 105Base.RDATA", scenario_name = "Base")
     highScenario = clean("PELPS 105 TFTA High Scenario revision 1.RDATA", "HighTTIP")
     lowScenario = clean("PELPS 105 TFTA Low scenario revision 1.RDATA", "LowTTIP")
     
@@ -213,12 +213,21 @@ clean_main_scenarios = function() {
     save(allScenarios, file="enddata/GFPM_Output_TTIP.RDATA")
     
     # Add sensitivity scenarios
-    allScenarios = bindScenarios(allScenarios, clean("World105LowGDPelast.RDATA", "BaseLowElast"))
-    allScenarios = bindScenarios(allScenarios, clean("World105NoTTIPHighGDPelast.RDATA", "BaseHighElast"))
+    baselowelast = clean("World105LowGDPelast.RDATA", "BaseLowElast")
+    basehighelast = clean("World105NoTTIPHighGDPelast.RDATA", "BaseHighElast")
+    allScenarios = bindScenarios(allScenarios, baselowelast)
+    allScenarios = bindScenarios(allScenarios, basehighelast)
+    
+    #  Save all scenarios
     message(paste("*",unique(allScenarios$entity$Scenario),"*"))
     save(allScenarios, file="enddata/GFPM_Output_TTIP_with_sensitivity.RDATA")
+    
+    # Save training dataset with only base scenario and sensitivity scenario
+    trainingScenarios = bindScenarios(baseScenario, baselowelast)
+    trainingScenarios = bindScenarios(trainingScenarios, basehighelast)
+    save(trainingScenarios, file="enddata/GFPM_training_scenarios.RDATA")
 }
 
-if (FALSE) {
+if (FALSE){
     clean_main_scenarios()
 }
