@@ -1,0 +1,146 @@
+---
+title: "Experiments with Forest Products Trade Flow Data"
+output:
+  html_document:
+    toc: true
+---
+
+```{r, echo=FALSE}
+# Set same path for knitr evaluation as for interactive use
+library(knitr)
+opts_knit$set(root.dir = '../..')
+opts_chunk$set(fig.width=10)
+```
+
+Load functions and scenario data
+```{r warning=FALSE}
+library(plyr)
+source("code/func.R")
+load("enddata/GFPM_training_scenarios.RDATA")
+load("enddata/GFPM_training_scenarios_with_historical.RDATA")
+```
+Base scenario + other 2 training scenarios, calculated by changing the demand
+elasticities by plus or minus 1 standard error, corresponding to a 
+confidence intereval of 70%.
+
+Introduction
+============
+Explore country specific data.
+Unfortunately GFPM doesn't simulate bilateral trade.
+### Todo
+add all elements on one graph grid to after individual plots to help visualiwe differences in scale.
+
+```{r}
+country = "United Kingdom"
+dtf = subset(trainingScenarios$entity, Country == country & 
+                 Scenario=="Base" )
+```
+
+### Issues by product
+
+Industrial roundwood decreasing and increasing in the base2011 scenario.
+```{r}
+ggplot(data=filter(gfpm, Country==country & 
+                       Product %in% c("IndRound")& Scenario == "Base2011")) +
+    aes(x=Year, y=Volume, color=Element, linetype=Scenario) +
+    geom_line() + ylim(0,NA) + 
+    ylab(expression(paste("Volume ",m^3))) +
+    facet_grid(Element ~ Product, scales="free_y") 
+```
+
+
+
+## Plot by element
+
+```{r by_element, results='markup'}
+# Import
+for (element in unique(dtf$Element)){
+#     print(head(subset(dtf, Element == element)))
+    print(paste("###", element))
+    p = ggplot(data=subset(dtf, Element == element)) +
+        aes(x=Period, y=Volume, colour=Product, label = Product) +
+        ggtitle(paste(country,"-",element)) +
+        geom_line() + 
+        # Subset last period to print country labels on the curves
+        geom_text(data=subset(dtf, Element == element & Period==max(dtf$Period))) +
+        xlim(1,5.5)
+    print(p)
+    #            theme(legend.position = "none") 
+}
+```
+
+
+### All on one graph
+```{r}
+ggplot(data=subset(dtf, Element!="DPrice")) +
+    aes(x=Period, y=Volume, colour=Product, label = Product) +
+    ggtitle(paste(country)) +
+    geom_line() + 
+    # Subset last period to print country labels on the curves
+    geom_text(data=subset(dtf, Element!="DPrice" & Period==max(dtf$Period))) +
+    facet_wrap(~Element) 
+```
+
+
+## Plot by product
+Except for Prices
+```{r by_product, results='markup'}
+# Import
+for (product in unique(dtf$Product)){
+#     print(head(subset(dtf, Element == element)))
+    cat(paste("###", product))
+    dtf_product <- subset(dtf, Product == product & Element!="DPrice")
+    p = ggplot(data=dtf_product) +
+        aes(x=Period, y=Volume, colour=Element, label = Element) +
+        ggtitle(paste(country,"-",product)) +
+        geom_line() + 
+        # Subset last period to print country labels on the curves
+        geom_text(data=subset(dtf_product, Period==max(dtf_product$Period))) +
+        xlim(1,5.5)
+    print(p)
+    #            theme(legend.position = "none") 
+}
+```
+
+### All on one graph
+```{r}
+ggplot(data=subset(dtf, Element!="DPrice")) +
+    aes(x=Period, y=Volume, colour=Element, label = Element) +
+    ggtitle(paste(country)) +
+    geom_line() + 
+    # Subset last period to print country labels on the curves
+    geom_text(data=subset(dtf, Element!="DPrice" & Period==max(dtf$Period))) +
+    facet_wrap(~Product) +
+    xlim(1,6)
+```
+
+
+### Plot by product type
+Primary secondary product.
+
+
+Data summaries
+--------------
+### What products are demanded, supplied, produced or traded in the country?
+```{r}
+whatproducts = function(dtf){unique(dtf$Product)}
+a <- group_by(dtf, Element)
+per_element <- summarize(a, p = unique(a$Product))
+# dlply(dtf, .(Element), whatproducts)[-2]
+do(dtf, prod = 1)
+# unique(trainingScenarios$entity$Country)
+# unique(trainingScenarios$entity$Element)
+```
+
+Explore GFPM scenarios by continents
+================================
+Plots
+-----
+### Base scenario
+```{r sawnwood_base}
+plotProdByReg(trainingScenarios, "Sawnwood", "Base")
+```
+
+```{r roundwood_base}
+plotProdByReg(trainingScenarios, "IndRound", "Base")
+```

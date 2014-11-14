@@ -1,0 +1,75 @@
+---
+title: "Forest products Consumption, Production and Trade in `r country`"
+output:
+  pdf_document:
+    highlight: zenburn
+    toc: yes
+  html_document:
+    toc: yes
+---
+
+
+```{r, echo=FALSE}
+library(knitr)
+opts_chunk$set(fig.width=10)
+opts_chunk$set(echo=FALSE)
+```
+
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(dplyr)
+library(reshape2)
+# opts_chunk$set(cache=TRUE) # Set global chunk options
+# comment this load function as the object is loaded in knit_reports.R now
+# load("enddata/GFPM_training_scenarios_with_historical.RDATA")
+# Remove price as it is not used for the moment
+gfpm <- gfpm %>% 
+    filter(Element!=  "DPrice")
+```
+
+
+### Paper products
+```{r paperproducts}
+paperproducts <- c("Newsprint", "PWPaper", "OthPaper")
+ggplot(data=filter(gfpm, Country==country & Product %in% paperproducts)) +
+    aes(x=Year, y=Volume, color=Element, linetype=Scenario) +
+    geom_line() + ylim(0,NA) + ylab("Tons") +
+    facet_grid(Element ~ Product)
+```
+
+### Solid wood
+```{r solidwood}
+solidwoodproducts <- c("Fuelwood", "IndRound", "Sawnwood", "OthIndRound")
+ggplot(data=filter(gfpm, Country==country & 
+                       Product %in% solidwoodproducts)) +
+    aes(x=Year, y=Volume, color=Element, linetype=Scenario) +
+    geom_line() + ylim(0,NA) + 
+    ylab(expression(paste("Volume ",m^3))) +
+    facet_grid(Element ~ Product)
+    ```
+
+
+### Wood panels
+```{r woodpanels}
+woodpanels <- c( "Plywood", "ParticleB" , "FiberB")
+ggplot(data=filter(gfpm, Country==country & 
+                       Product %in% woodpanels)) +
+    aes(x=Year, y=Volume, color=Element, linetype=Scenario) +
+    geom_line() + ylim(0,NA) +
+    ylab(expression(paste("Volume ",m^3))) +
+    facet_grid(Element ~ Product)
+```
+
+
+### Other products
+```{r otherproducts}
+ggplot(data=filter(gfpm, Country==country &
+                       ! Product %in% c(paperproducts, 
+                                        solidwoodproducts, 
+                                        woodpanels))) +
+    aes(x=Year, y=Volume, color=Element, linetype=Scenario) +
+    geom_line() + ylim(0,NA) +
+    ylab(expression(paste("Volume ",m^3))) +
+    facet_grid(Element ~ Product)
+```

@@ -26,7 +26,7 @@ plotProdByReg = function(scenarios, product="", scenario=""){
 ######################################################### #
 # Load and clean the last run scenario from PELPS folder  #
 ######################################################### #
-# This function has to be run after source("code/load.R") abd source("code/clean.R")
+# This function has to be run after source("code/load.R") and source("code/clean.R")
 load_and_clean_gfpm_data <- function(scenario_name, compression="none"){
     copy_pelps_folder(scenario_name, compression)
     savePELPSToRdata(scenario_name,  compression)

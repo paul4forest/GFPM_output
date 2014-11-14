@@ -1,0 +1,142 @@
+---
+title: "Experiments with Forest Products Trade Flow Data"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    toc: yes
+---
+
+
+## Load Sawnwood data
+
+```{r, echo=FALSE}
+# Set same path for knitr evaluation as for interactive use
+library(knitr)
+opts_knit$set(root.dir = '../..')
+opts_chunk$set(fig.width=10)
+```
+
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(dplyr)
+library(reshape2)
+# opts_chunk$set(cache=TRUE) # Set global chunk options
+options(width=80)
+```
+
+
+### Load raw FAOSTAT data
+FAOSTAT is the source of forest products data.
+We have loaded this data for another project, reuse it here.
+May need to update this data?
+```{r load, results='show', warning=FALSE, message=FALSE}
+load("/home/paul/hubic/work/EFI/Y/forestproductsdemand/rawdata/sawnwood.RData")
+# EU = read.csv("rawdata/EUCountries.csv")
+swd = sawnwood$entity # Give a shorter name to the data frame
+```
+### Load GFPM data
+```{r}
+load("enddata/GFPM_training_scenarios.RDATA")
+country = "United Kingdom"
+product = "Sawnwood"
+gfpm = subset(trainingScenarios$entity,
+              Country == country & 
+                  Product == product & 
+                  Scenario=="Base" )
+```
+
+
+### Calculate apparent consumption
+Could change this to import forestproductsdemand package
+```{r apparentconsumption}
+calculateConsumptionNetTrade = function(dtf){
+    # Change NA values to 0 - Not recommended 
+    # But makes sence at least that import into Finland and Sweden are 0
+    dtf[is.na(dtf)] = 0
+    
+    # Calculate apparent consumption and net trade
+    dtf = mutate(dtf, 
+                 Consumption = Production + Import_Quantity - Export_Quantity, 
+                 Net_Trade =  Export_Quantity - Import_Quantity)
+    return(dtf)
+}
+
+swd <- calculateConsumptionNetTrade(swd)
+# names tolower?
+# names(airquality) <- tolower(names(airquality))
+swd <- melt(swd, id=c("FAOST_CODE", "Country", "Year", "Item"),
+            value.name = "Volume", variable.name = "Element")
+```
+
+
+## Plot
+### UK historical sawnwood data
+```{r}
+swduk <- filter(swd, Item=="Sawnwood" &
+                Element %in% c("Production", "Import_Quantity", 
+                              "Export_Quantity", "Consumption", "Net_Trade")&
+                Country=="the United Kingdom of Great Britain and Northern Ireland")
+ggplot(data=swduk) + 
+    geom_line(aes(x=Year, y=Volume, colour=Element)) +
+    ylab("M3") + theme_bw()
+```
+
+
+### UK GFPM sawnwood scenario
+```{r} 
+gfpm_product <- subset(gfpm, Product == "Sawnwood" & Element!="DPrice")
+p = ggplot(data=gfpm_product) +
+    aes(x=Period, y=Volume, colour=Element, label = Element) +
+    ggtitle(paste(country)) +
+    geom_line() + 
+    # Subset last period to print country labels on the curves
+    geom_text(data=subset(gfpm_product, Period==max(gfpm_product$Period))) +
+    xlim(1,5.5)
+print(p)
+```
+
+
+### Merge GFPM and historical data
+#### Naming Issues
+Naming issues are by-passed because we use only
+one country, one product and one variable. 
+To merge tables containing many countries and products, 
+we will need correspondance tables between the 2 encoding schemes.
+```{r}
+# elements --> we will need a matching table
+unique(swduk$Element)
+unique(gfpm$Element)
+# Items or product --> We will need a matching table
+unique(swduk$Item)
+unique(gfpm$Product)
+# Countries or geographical area 
+unique(swduk$Country)
+unique(gfpm$Country)
+# Add gfpm  years
+years <- data.frame(Period=seq(1,5), Year=seq(2010,2030,5))
+gfpmdemand <- gfpm %>% 
+    merge(years) %>%
+    filter(Element=="Demand") %>%
+    mutate(Volume = 1000 * Volume) %>%
+    select(Country, Year, Volume)
+
+
+# Merge by keys: 
+# swd <- melt(swd, id=c("FAOST_CODE", "Country", "Year", "Item"))
+swdukdemand <- swduk %>% 
+    filter(Element=="Consumption") %>%
+    select(Country, Year, Volume) %>%
+    mutate(Country = "United Kingdom") %>%
+    rbind(gfpmdemand)
+```
+
+
+Show sawnwood demand for the different years
+```{r}
+ggplot(data=swdukdemand) +
+    aes(x=Year, y=Volume) +
+    geom_line() + ylim(0,NA)
+```
+

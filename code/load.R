@@ -8,8 +8,9 @@
 # Author: Paul Rougieux
 # European Forest Institute
 #
+library(devtools)
 
-
+# This may be moved to a script in the data-raw folder
 ################################################
 # Load and save GFPM Country and product codes #
 ################################################
@@ -34,6 +35,14 @@ elasticities = merge(elasticities, productCodes)
 # Save product, country codes and selectedCountries to RDATA
 save(productCodes, countryCodes, summaryCountries, elasticities,
      file="rawdata/GFPMcodes.RDATA")
+
+# Change to lowercase preserve the above for backwards compatibility
+# Use data as part of the package NAMSPACE
+productcodes <- productCodes
+countrycodes <- countryCodes
+summarycountries <- summaryCountries
+use_data(productcodes, countrycodes, summarycountries, elasticities,
+         overwrite=TRUE)
 
 #########################################
 # Main ASCII output files from the GFPM #
@@ -175,6 +184,7 @@ load_main_scenarios = function() {
     savePELPSToRdata("PELPS 105 TFTA Low scenario revision 1", "zip")
     savePELPSToRdata("World105LowGDPelast", "zip")
     savePELPSToRdata("World105NoTTIPHighGDPelast", "zip")
+    savePELPSToRdata("PELPS October 2014 Ahmed")
 }
 
 if (FALSE) {

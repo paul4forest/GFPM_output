@@ -218,6 +218,9 @@ clean_main_scenarios = function() {
     allScenarios = bindScenarios(allScenarios, baselowelast)
     allScenarios = bindScenarios(allScenarios, basehighelast)
     
+    # Add base2011 scenario from a simulation with Ahmed on October 2014
+    base2011 = clean("PELPS October 2014 Ahmed.RDATA", "Base2011")
+    
     #  Save all scenarios
     message(paste("*",unique(allScenarios$entity$Scenario),"*"))
     save(allScenarios, file="enddata/GFPM_Output_TTIP_with_sensitivity.RDATA")
@@ -225,6 +228,7 @@ clean_main_scenarios = function() {
     # Save training dataset with only base scenario and sensitivity scenario
     trainingScenarios = bindScenarios(baseScenario, baselowelast)
     trainingScenarios = bindScenarios(trainingScenarios, basehighelast)
+    trainingScenarios = bindScenarios(trainingScenarios, base2011)
     save(trainingScenarios, file="enddata/GFPM_training_scenarios.RDATA")
 }
 
