@@ -11,7 +11,7 @@ output:
 
 ```{r, echo=FALSE}
 library(knitr)
-opts_chunk$set(fig.width=10)
+opts_chunk$set(fig.width=10, fig.height=7)
 opts_chunk$set(echo=FALSE)
 ```
 
@@ -23,25 +23,39 @@ library(reshape2)
 # opts_chunk$set(cache=TRUE) # Set global chunk options
 # comment this load function as the object is loaded in knit_reports.R now
 # load("enddata/GFPM_training_scenarios_with_historical.RDATA")
-# Remove price as it is not used for the moment
-gfpm <- gfpm %>% 
-    filter(Element!=  "DPrice")
+# Extract prices
+gfpmprices <- gfpm %>% 
+    filter(Element==  "DPrice") %>%
+    mutate(Volume = Volume /1000)
+# Remove prices from the main table as they will be displayed on
+# a different graph
+gfpmvolume <- gfpm %>% filter(Element!=  "DPrice")
 ```
 
 
 ### Paper products
 ```{r paperproducts}
 paperproducts <- c("Newsprint", "PWPaper", "OthPaper")
-ggplot(data=filter(gfpm, Country==country & Product %in% paperproducts)) +
+ggplot(data=filter(gfpmvolume, Country==country & Product %in% paperproducts)) +
     aes(x=Year, y=Volume, color=Element, linetype=Scenario) +
-    geom_line() + ylim(0,NA) + ylab("Tons") +
-    facet_grid(Element ~ Product)
+    geom_line() + ylim(0,NA) + 
+    facet_grid(Element ~ Product) +
+    ylab("Tons") + ggtitle("Volume")
+```
+
+```{r paperproductsprices, fig.height=3}
+p <- ggplot(data=filter(gfpmprices, Country==country & 
+                            Product %in% paperproducts)) +
+    aes(x=Year, y=Volume, color=Element, linetype=Scenario) +
+    geom_line() + ylim(0,NA) + ylab("$/T") + xlim(1990, NA) +
+    facet_wrap(~Product) + ggtitle("Prices")
+try(plot(p))
 ```
 
 ### Solid wood
 ```{r solidwood}
 solidwoodproducts <- c("Fuelwood", "IndRound", "Sawnwood", "OthIndRound")
-ggplot(data=filter(gfpm, Country==country & 
+ggplot(data=filter(gfpmvolume, Country==country & 
                        Product %in% solidwoodproducts)) +
     aes(x=Year, y=Volume, color=Element, linetype=Scenario) +
     geom_line() + ylim(0,NA) + 
@@ -50,10 +64,21 @@ ggplot(data=filter(gfpm, Country==country &
     ```
 
 
+```{r solidwoodprices, fig.height=3}
+p <- ggplot(data=filter(gfpmprices, Country==country & 
+                            Product %in% solidwoodproducts)) +
+    aes(x=Year, y=Volume, color=Element, linetype=Scenario) +
+    geom_line() + ylim(0,NA) + xlim(1990, NA) +
+    ylab(expression(paste("$/",m^3))) + ggtitle("Prices") + 
+    facet_wrap(~Product) 
+try(plot(p))
+```
+
+
 ### Wood panels
 ```{r woodpanels}
 woodpanels <- c( "Plywood", "ParticleB" , "FiberB")
-ggplot(data=filter(gfpm, Country==country & 
+ggplot(data=filter(gfpmvolume, Country==country & 
                        Product %in% woodpanels)) +
     aes(x=Year, y=Volume, color=Element, linetype=Scenario) +
     geom_line() + ylim(0,NA) +
@@ -62,9 +87,20 @@ ggplot(data=filter(gfpm, Country==country &
 ```
 
 
+```{r woodpanelsprices, fig.height=3}
+p <- ggplot(data=filter(gfpmprices, Country==country & 
+                            Product %in% woodpanels)) +
+    aes(x=Year, y=Volume, color=Element, linetype=Scenario) +
+    geom_line() + ylim(0,NA) + xlim(1990, NA) +
+    ylab(expression(paste("$/",m^3))) + ggtitle("Prices") +
+    facet_wrap(~Product) 
+try(plot(p))
+```
+
+
 ### Other products
 ```{r otherproducts}
-ggplot(data=filter(gfpm, Country==country &
+ggplot(data=filter(gfpmvolume, Country==country &
                        ! Product %in% c(paperproducts, 
                                         solidwoodproducts, 
                                         woodpanels))) +
@@ -72,4 +108,17 @@ ggplot(data=filter(gfpm, Country==country &
     geom_line() + ylim(0,NA) +
     ylab(expression(paste("Volume ",m^3))) +
     facet_grid(Element ~ Product)
+```
+
+
+```{r otherpriductsprices, fig.height=3}
+p <- ggplot(data=filter(gfpmprices, Country==country & 
+                       ! Product %in% c(paperproducts, 
+                                        solidwoodproducts, 
+                                        woodpanels))) +
+    aes(x=Year, y=Volume, color=Element, linetype=Scenario) +
+    geom_line() + ylim(0,NA) + xlim(1990, NA) +
+    ylab(expression(paste("$/",m^3))) + ggtitle("Prices") +
+    facet_wrap(~Product) 
+try(plot(p))
 ```

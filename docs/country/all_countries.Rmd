@@ -1,0 +1,65 @@
+---
+title: "Experiments with Forest Products Trade Flow Data"
+output:
+  html_document:
+    toc: true
+---
+
+```{r, echo=FALSE}
+library(knitr)
+library(dplyr)
+library(ggplot2)
+# Set same path for knitr evaluation as for interactive use
+opts_knit$set(root.dir = '../..')
+opts_chunk$set(fig.width=10)
+```
+
+Load functions and scenario data
+```{r warning=FALSE}
+load("enddata/GFPM_training_scenarios_with_historical.RDATA")
+# Extract prices
+gfpmprices <- gfpm %>% 
+    filter(Element==  "DPrice" & !is.na(Country) ) %>%
+    mutate(Volume = Volume /1000)
+# Extract volume
+gfpmvolume <- gfpm %>% filter(Element!=  "DPrice")
+
+
+eu27countries <- GFPMoutput::countrycodes$Country[GFPMoutput::countrycodes$EU27]
+```
+Base scenario + other 2 training scenarios, calculated by changing the demand
+elasticities by plus or minus 1 standard error, corresponding to a 
+confidence intereval of 70%.
+
+Introduction
+============
+Explore country specific data.
+Unfortunately GFPM doesn't simulate bilateral trade.
+### Prices
+
+
+```{r paperprices_eu}
+for (product in unique(gfpmprices$Product)){
+    pv <- ggplot(data=filter(gfpmvolume, Product == product & 
+                           Country %in% eu27countries)) +
+        aes(x=Year, y=Volume, color=Element, linetype=Scenario) +
+        geom_line() + ylim(0,NA) + ylab("Volume") + xlim(1990, NA) +
+        facet_wrap(~Country) + ggtitle(product)
+    plot(pv)    
+    pp <- ggplot(data=filter(gfpmprices, Product == product & 
+                           Country %in% eu27countries)) +
+        aes(x=Year, y=Volume, color=Element, linetype=Scenario) +
+        geom_line() + ylim(0,NA) + ylab("$/T") + xlim(1990, NA) +
+        facet_wrap(~Country) + ggtitle(paste(product, "Prices"))
+    plot(pp)
+}
+```
+
+
+
+```{r paperprices_world, eval=FALSE}
+ggplot(data=filter(gfpmprices, Product ==  "OthPaper")) +
+    aes(x=Year, y=Volume, color=Element, linetype=Scenario) +
+    geom_line() + ylim(0,NA) + ylab("$/T") + xlim(1990, NA) +
+    facet_wrap(~Country, scales="free_y") + ggtitle("Prices")
+```

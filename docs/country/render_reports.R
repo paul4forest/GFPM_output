@@ -37,16 +37,18 @@ if(FALSE){
     load("enddata/GFPM_training_scenarios_with_historical.RDATA")
     # Load country names countrycodes should be part of the package namespace
     eu27countries <- GFPMoutput::countrycodes$Country[GFPMoutput::countrycodes$EU27]
+    # one country only
+    country = "United Kingdom"
+    createreport(country, outputdir="reportsbase20102011")
     # create reports for all scenarios for all eu27 countries
     createreport(eu27countries, outputdir="reportsbase20102011")
+
     
-    
-    ############################################### #
-    # Select only base2011 and historical scenario  #
-    ############################################### #
+    ######################################################## #
+    # Select only the base2011 scenario and historical data  #
+    ######################################################## #
     gfpm <- gfpm %>% 
-        filter(Element!=  "DPrice" &
-                   Scenario %in% c("Base2011","Historical"))    
+        filter(Scenario %in% c("Base2011","Historical"))    
 
 
     # Export data for the UK only #

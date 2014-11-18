@@ -2,19 +2,21 @@ This program reads output simulation of the __Global Forest Product Model (GFPM)
 The system converts raw GFPM output (text files .DAT) into dataframes. So that you can avoid using Excel macros to display GFPM simulations. Based on the converted data, several reports can be generated in the form of html, pdf or Excel documents. It can be used to plot consumption, production and trade volumes for more than 2 scenarios and to automate various calculations such as welfare and value added.
 
 
-__Software components__:
-You will need to install the GFPM and the R statisticall software. Links to the software components:
-* The GFPM model and its user manuals are available on [this page of the University of Wisconsin-Madison](http://labs.russell.wisc.edu/buongiorno/welcome/gfpm/).
-* The [R statistical software](http://www.r-project.org/)
-* A text editor, we have used [R-Studio](http://www.rstudio.com/products/rstudio/download/)
-* You may need to install [Rtools](http://cran.r-project.org/bin/windows/Rtools/), so that some file compression becomes available.
-* Command to install R packages:
-```
-install.packages(c("plyr", "ggplot2"))
-```
+__Warning__: 
+This package is in development.
+It started originally as a small project in 2013,
+then was changed into a package in autumn 2014. 
+Therefore some instructions below might be obsolete.
+Data import might break. Column names might be changed in the future.
+Data cleaning steps were first implemented using the plyr package.
+The author started to use the dplyr package heavily at one point in the project.
+Functionality might evolve. 
+This package is provided as-is, 
+in the hope that it might already be usefull to someone.
 
+__Your input welcome__:  Your suggestions and improvements are welcomed.
 
-__Data sources__: Data files are imported in the form of text files, named .DAT, see "input data" below.
+__Data sources__: Data files are imported in the form of text files, named .DAT, see "Importing GFPM data" below.
 
 __Authors__: Paul Rougieux and Ahmed Barkaoui
 
@@ -26,8 +28,22 @@ licensed under the [GNU GPL](http://www.gnu.org/copyleft/gpl.html).
 
 Tutorial
 ----------
+### Software components
+You will need to install the GFPM and the R statisticall software. Links to the software components:
+
+* The GFPM model and its user manuals are available on [this page of the University of Wisconsin-Madison](http://labs.russell.wisc.edu/buongiorno/welcome/gfpm/).
+* The [R statistical software](http://www.r-project.org/)
+* A text editor, we have used [R-Studio](http://www.rstudio.com/products/rstudio/download/)
+* You may need to install [Rtools](http://cran.r-project.org/bin/windows/Rtools/), so that some file compression becomes available.
+* Command to install R packages:
+```
+install.packages(c("plyr", "ggplot2"))
+```
+
+### Importing GFPM data
 After a GFPM scenario has been run, simulation results are stored 
-in plain text format in the `C:\PELPS\PELPS` folder. 
+in plain text .DAT files in the `C:\PELPS\PELPS` folder.
+
 * How to load and prepare GFPM data: 
    [load_clean.md](./docs/tutorial/load_clean.md) (github) or [load_clean.html](./docs/tutorial/load_clean.html) (local link).
 * How to visualise the content of a dataset [explore.md](./docs/tutorial/explore.md) (github) or [explore.html](./docs/tutorial/explore.html) ) (local link)
@@ -122,10 +138,18 @@ Changelog
 August 2013: started writing scripts to import PELPS data.
 
 January 2014: 
+
 * Changed load.r to enable reading from zip files. 
 * Used options(run.clean.main=FALSE) to decide whether to run the main clean function or not.
   The main clean function is not called from tests. 
 
 June-July 2014:
+
 * Modified the tutorial to explain how load.R and clean.R work.
 * Added a picture of the workflow in the readme.
+
+October-November 2014:
+
+* Include historical data
+* Create country reports, use newer version of rmarkdown to create PDF documents.
+* Started using dplyr to process data frames

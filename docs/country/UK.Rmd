@@ -14,7 +14,7 @@ opts_chunk$set(fig.width=10)
 
 Load functions and scenario data
 ```{r warning=FALSE}
-library(plyr)
+library(dplyr)
 source("code/func.R")
 load("enddata/GFPM_training_scenarios.RDATA")
 load("enddata/GFPM_training_scenarios_with_historical.RDATA")
@@ -122,7 +122,7 @@ Primary secondary product.
 Data summaries
 --------------
 ### What products are demanded, supplied, produced or traded in the country?
-```{r}
+```{r eval=FALSE}
 whatproducts = function(dtf){unique(dtf$Product)}
 a <- group_by(dtf, Element)
 per_element <- summarize(a, p = unique(a$Product))

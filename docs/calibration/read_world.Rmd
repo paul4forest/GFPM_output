@@ -1,0 +1,93 @@
+---
+title: "Read GFPM calibration file world.xls"
+author: "Paul Rougieux"
+date: "17/11/2014"
+output: html_document
+---
+
+GFPM calibration files are called World.xls. 
+Read data from world.xls.
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+library(dplyr)
+library(knitr)
+# Set same path for knitr evaluation as for interactive use
+opts_knit$set(root.dir = '../..')
+opts_chunk$set(fig.width=10)
+```
+
+
+```{r read_world_xlsx, eval=FALSE}
+library(xlsx)
+## Load GFPM configuration from World.xls
+### Load from Excel doesn't work, out of memory error
+file <- "../../../Research/projects/WWF_UK_scenario/GFPM_world/World_nov2014.xlsx"
+demand <- read.xlsx(file, 2)
+
+# Error in .jcall("RJavaTools", "Ljava/lang/Object;", "invokeMethod", cl,  : 
+#   java.lang.OutOfMemoryError: GC overhead limit exceeded
+```
+
+I copied the demand and supply sheets to csv files and loaded from csv instead.
+```{r}
+### Load from csv instead
+demand <- read.csv("../../../Research/projects/WWF_UK_scenario/GFPM_world/demand.csv")
+supply <- read.csv("../../../Research/projects/WWF_UK_scenario/GFPM_world/supply.csv")
+# Remove the last lines about the dummy country "zy".
+demand <- demand %>% filter(countrycode != "zy")
+supply <- supply %>% filter(countrycode != "zy")
+```
+
+### Demand parameters
+```{r}
+# For the UK only
+demand %>% 
+    filter(countrycode == "q3") %>% 
+    merge(GFPMoutput::productcodes, by.x = "productcode", by.y="Product_Code") %>%
+    select(productcode, Product, priceelast, gdpelast) %>%
+    kable()
+
+# For all world countries
+unique(demand[c("productcode", "priceelast", "gdpelast")]) %>%
+    merge(GFPMoutput::productcodes, by.x = "productcode", by.y="Product_Code") %>%
+    select(productcode, Product, priceelast, gdpelast) %>%
+    kable()
+```
+
+
+## Supply parameters
+```{r}
+# Add country names and product codes
+countrycodes <- GFPMoutput::countrycodes %>%
+    select(countrycode = Country_Code, country = Country)
+supply <- supply %>% merge(countrycodes) %>% 
+        merge(GFPMoutput::productcodes, by.x = "productcode", by.y="Product_Code")
+
+
+unique(supply[c("productcode", "Product" , "priceelast", "firstelast", "stockelast")]) %>%
+    select(productcode, Product, priceelast, firstelast, stockelast) %>%
+    kable()
+
+# Remove China, which has a different supply elasticity, see below
+supply2 <- supply %>% filter(countrycode!="j1")
+unique(supply2[c("productcode", "Product","priceelast", "firstelast", "stockelast")]) %>%
+    select(productcode, Product, priceelast, firstelast, stockelast) %>%
+    kable()
+```
+
+
+Wich countries have a different elasticity of supply for
+Fuelwood, IndRound and OthIndRound?
+```{r}
+# Number of countries by product
+supply %>% 
+    group_by(priceelast, productcode) %>% 
+    summarize(numberofcountries = n())
+
+# There is actually only one country
+supply %>% filter(priceelast == 0.5) %>%
+    select(Product, countrycode, country)
+```
+
+
+
+
