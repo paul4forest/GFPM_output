@@ -7,7 +7,7 @@
 #
 # Author: Paul Rougieux
 # European Forest Institute
-#
+# bli
 library(devtools)
 
 # This may be moved to a script in the data-raw folder
