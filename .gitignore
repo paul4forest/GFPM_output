@@ -1,5 +1,6 @@
 draft2013/
 .Rproj.user/
+.Rhistory
 *.dat
 *.DAT
 *.QPS
