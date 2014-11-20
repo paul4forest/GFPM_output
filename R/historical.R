@@ -12,7 +12,28 @@
 #'                     FAOST_CODE = FAOST_CODE, Country_GFPM=Country),
 #'           all.x = TRUE) %>% 
 #'     filter(is.na(Country_GFPM))
-
+#'     
+# Table 1 from Calibrating GFPM 2013.doc
+#     |GFPM names|Item Name FAO|File Name|
+#     |:----------|:----------|:----------|
+#     |Fuelwood|WOOD FUEL+|Fuelwood.csv|
+#     |Chips and Particles|Chips and Particles|Chips.csv|
+#     |Industrial Roundwood|INDUSTRIAL ROUNDWOOD+|IndRound.csv|
+#     |Other Industrial Roundwood|OTHER INDUST ROUNDWD+|OthIndRound.csv|
+#     |Sawnwood|SAWNWOOD+|Sawnwood.csv|
+#     |Plywood|Plywood|Plywood.csv|
+#     |Veneer Sheets|Veneer Sheets|Veneer.csv|
+#     |Particleboard|Particle Board|ParticleB.csv|
+#     |Fiberboard|FIBREBOARD+|FiberB.csv|
+#     |Mechanic Pulp|Mechanical Wood Pulp|MechPlp.csv|
+#     |Chemical Pulp|Chemical Wood Pulp|ChemPlp.csv|
+#     |Semi-chemical Pulp|Semi-Chemical Pulp|SemiChemPlp.csv|
+#     |Other Fiber Pulp|Other Fibre Pulp|OthFbrPlp.csv|
+#     |Newsprint|Newsprint|Newsprint.csv|
+#     |Printing and Writing Paper|Printing+Writing Paper|PWPaper.csv|
+#     |Other Paper and Paperboard|Other Paper+Paperboard|OthPaper.csv|
+#     |Waste Paper|Recovered Paper|WastePaper.csv|
+#     |Forest Stock and Area|Forest Stock and Area|Forest.csv|
 
 
 library(ggplot2)
@@ -43,18 +64,19 @@ calculateConsumptionNetTrade = function(dtf){
 }
 
 
-# Load FAOSTAT data from another project
+# Load FAOSTAT raw data from another project
 demandprojectpath <- "/home/paul/hubic/work/EFI/Y/forestproductsdemand/rawdata"
 load(file.path(demandprojectpath,"roundwood.Rdata"))
 load(file.path(demandprojectpath,"Paper and paperboard.RData"))
 load(file.path(demandprojectpath,"sawnwood.RData"))
 load(file.path(demandprojectpath,"woodpanels.Rdata"))
+load(file.path(demandprojectpath,"wastepaper.RData"))
 
    
 # Prepare FAO historical data for merger with gfpm data
 fao <- rbind(roundwood$entity, sawnwood$entity, 
              paperAndPaperboardProducts$entity,
-             woodpanels$entity) %>%
+             woodpanels$entity, wastepaper$entity) %>%
     filter(Year >= 1990) %>%
     calculateConsumptionNetTrade %>%
     # Remove trade values

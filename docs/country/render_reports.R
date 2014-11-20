@@ -20,7 +20,7 @@ export2csv <- function(countries){
 #' 
 #' create report with the render function from the rmarkdown package
 #' @country a vector of country names
-createreport <- function(countries, outputdir="docs/country/", 
+createreport <- function(countries, outputdir, 
                          inputpath = "docs/country", template = "report.Rmd"){
     for (country in countries){
         tryCatch(render(input = file.path(inputpath, template), 

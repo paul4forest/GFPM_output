@@ -4,7 +4,6 @@ output:
   html_document:
     toc: true
 ---
-
 ```{r, echo=FALSE}
 # Set same path for knitr evaluation as for interactive use
 library(knitr)
@@ -15,13 +14,16 @@ opts_chunk$set(fig.width=10)
 Load functions and scenario data
 ```{r warning=FALSE}
 library(dplyr)
+library(reshape2)
 source("code/func.R")
+# A list of data frames
 load("enddata/GFPM_training_scenarios.RDATA")
+# Only one data frame, sorry that the structure is different
 load("enddata/GFPM_training_scenarios_with_historical.RDATA")
 ```
 Base scenario + other 2 training scenarios, calculated by changing the demand
 elasticities by plus or minus 1 standard error, corresponding to a 
-confidence intereval of 70%.
+confidence interval of 70%.
 
 Introduction
 ============
@@ -34,6 +36,39 @@ add all elements on one graph grid to after individual plots to help visualiwe d
 country = "United Kingdom"
 dtf = subset(trainingScenarios$entity, Country == country & 
                  Scenario=="Base" )
+```
+
+
+### Percentage increase of demand in the UK
+```{r}
+change <- function(country, element="Demand"){
+    if (country %in% unique(gfpm$Country)){
+        gfpm %>%
+            filter(Country == country &
+                       Element == element & Scenario =="Base2011" &
+                       Year %in% c(2011, 2030)) %>%
+            # Add a V to year so that the future column name
+            # of the reshaped table is not a number
+            mutate(Year = paste0("V",Year)) %>% 
+            select(Country, Product, Element, Year, Volume) %>%
+            dcast(Country + Product + Element ~  Year, value.var = "Volume") %>%
+            mutate(changepercent = round((V2030 - V2011) / V2011 *100)) %>%
+            kable()
+        }
+    else {
+        warning("Country is not in gfpm$Country")
+    }
+
+}
+change("United Kingdom")
+change("United Kingdom", "Production")
+change("United Kingdom", "Supply")
+change("United Kingdom", "Import")
+change("United Kingdom", "Export")
+
+change("China")
+change("Brazil")
+change("Germany")
 ```
 
 ### Issues by product
