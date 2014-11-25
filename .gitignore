@@ -1,6 +1,6 @@
 draft2013/
 .Rproj.user/
-*.dat
+.Rhistory
 *.DAT
 *.QPS
 *.OUT
