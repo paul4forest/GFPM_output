@@ -1,0 +1,36 @@
+---
+title: "Experiments with Forest Products Trade Flow Data"
+output:
+  html_document:
+    toc: true
+---
+```{r, echo=FALSE}
+# Set same path for knitr evaluation as for interactive use
+library(knitr)
+opts_knit$set(root.dir = '../..')
+opts_chunk$set(fig.width=10)
+```
+
+Load functions and scenario data
+```{r warning=FALSE}
+library(dplyr)
+library(reshape2)
+library(ggplot2)
+# A list of data frames
+load("enddata/GFPM_training_scenarios.RDATA")
+```
+
+
+## World prices 
+```{r}
+prices <- trainingScenarios$worldPrices %>%
+    filter(Scenario == "Base2011")
+ggplot(data = prices, aes(x=Period, y=World_Price)) +
+    geom_line() + 
+    facet_wrap(~Product, scales="free_y")
+
+# Export world prices to a csv file
+# write.csv(prices, file="rawdata/worldpricesscenariobase2011.csv", 
+#           row.names=FALSE)
+```
+

@@ -37,7 +37,7 @@ save(productCodes, countryCodes, summaryCountries, elasticities,
      file="rawdata/GFPMcodes.RDATA")
 
 # Change to lowercase preserve the above for backwards compatibility
-# Use data as part of the package NAMSPACE
+# Use data as part of the package NAMESPACE
 productcodes <- productCodes
 countrycodes <- countryCodes
 summarycountries <- summaryCountries
