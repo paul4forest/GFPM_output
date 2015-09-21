@@ -98,6 +98,7 @@ In order to ignore bulky files, a .gitignore file is placed in the ./rawdata fol
 Comments and suggested improvements
 --------------------------------
 * Change `=` assignments to `<-`
+* Change docs/tutorial/load_clean.Rmd to a vignette
 
 ### Copying from  "C:\PELPS\PELPS"
 Write a function to copy files from "C:\PELPS\PELPS" to a .zip archive in the "./rawdata" folder.

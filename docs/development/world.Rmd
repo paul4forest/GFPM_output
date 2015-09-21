@@ -1,0 +1,48 @@
+---
+title: "Read world.xlsx"
+author: "Paul Rougieux"
+date: "26/01/2015"
+output: html_document
+---
+
+
+```{r packages, echo=FALSE, warning=FALSE, message=FALSE}
+library(knitr)
+opts_knit$set(root.dir="../..") # file paths are relative to the root of the project directory
+opts_chunk$set(echo=FALSE)
+
+library(dplyr)
+```
+
+```{r}
+source("R/clean.R")
+# World.xlsx seems to be too large to be read by xlsx
+# library(xlsx)
+# transportation <- read.xlsx(file = "/home/paul/hubic/work/EFI/Y/GFPM/TTIP/Buongiorno Simulation/TFTAresultsWithWorld105&BaseScenario/World105.xls",sheetName = "Transportation", startRow = 15)
+# Load csv instead
+transportation <- read.csv("/home/paul/hubic/work/EFI/Y/GFPM/TTIP/Buongiorno Simulation/TFTAresultsWithWorld105&BaseScenario/World105_transportation.csv")
+
+transportation <- transportation %>% filter(A =="zz")
+# Add country and product names
+transportation <- transportation %>%
+    merge(countryCodes[c("Country_Code","Country", "GFPM_REG")],by.x = "C", by.y = "Country_Code", all.y=TRUE) %>%
+    merge(productCodes[c("Product_Code","Product")],
+          , by.x = "E", by.y = "Product_Code", all.y=TRUE) %>%
+    rename(Countrycode = C, Partnercode = A, Tax = G)
+    
+```
+
+### Import taxes in China and in France
+```{r}
+transportation %>%
+ filter(Country %in% c("China", "France")) %>%
+    select(E, Product, Countrycode, Country,
+           Partnercode, Tax ) %>% kable
+```
+
+### Highest import tax rates 
+```{r}
+transportation %>% group_by(Product) %>%
+    arrange(desc(Tax)) %>% do(head(.,n=10)) %>% kable
+```
+
