@@ -1,3 +1,4 @@
 *
 !.gitignore
-!GFPMcodes.RDATA
+!GFPMcodes.RDATA # This shouldn't be needed anymore
+!*.R
