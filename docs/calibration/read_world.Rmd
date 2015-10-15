@@ -17,6 +17,10 @@ opts_chunk$set(fig.width=10)
 
 
 ```{r read_world_xlsx, eval=FALSE}
+##
+## Chunk deactivated
+## ! World.xlsx is too large to be loaded in R see below
+## 
 library(xlsx)
 ## Load GFPM configuration from World.xls
 ### Load from Excel doesn't work, out of memory error
@@ -29,9 +33,10 @@ demand <- read.xlsx(file, 2)
 
 I copied the demand and supply sheets to csv files and loaded from csv instead.
 ```{r}
+# csv copied from World.xls 
 ### Load from csv instead
-demand <- read.csv("../../../Research/projects/WWF_UK_scenario/GFPM_world/demand.csv")
-supply <- read.csv("../../../Research/projects/WWF_UK_scenario/GFPM_world/supply.csv")
+demand <- read.csv("rawdata/world_nov2014_demand.csv")
+supply <- read.csv("rawdata/world_nov2014_supply.csv")
 # Remove the last lines about the dummy country "zy".
 demand <- demand %>% filter(countrycode != "zy")
 supply <- supply %>% filter(countrycode != "zy")
@@ -40,15 +45,17 @@ supply <- supply %>% filter(countrycode != "zy")
 ### Demand parameters
 ```{r}
 # For the UK only
-demand %>% 
-    filter(countrycode == "q3") %>% 
-    merge(GFPMoutput::productcodes, by.x = "productcode", by.y="Product_Code") %>%
-    select(productcode, Product, priceelast, gdpelast) %>%
-    kable()
+# demand %>% 
+#     filter(countrycode == "q3") %>% 
+#     merge(GFPMoutput::productcodes, 
+#           by.x = "productcode", by.y="Product_Code") %>%
+#     select(productcode, Product, priceelast, gdpelast) %>%
+#     kable()
 
 # For all world countries
 unique(demand[c("productcode", "priceelast", "gdpelast")]) %>%
-    merge(GFPMoutput::productcodes, by.x = "productcode", by.y="Product_Code") %>%
+    merge(GFPMoutput::productcodes, 
+          by.x = "productcode", by.y="Product_Code") %>%
     select(productcode, Product, priceelast, gdpelast) %>%
     kable()
 ```
@@ -60,7 +67,8 @@ unique(demand[c("productcode", "priceelast", "gdpelast")]) %>%
 countrycodes <- GFPMoutput::countrycodes %>%
     select(countrycode = Country_Code, country = Country)
 supply <- supply %>% merge(countrycodes) %>% 
-        merge(GFPMoutput::productcodes, by.x = "productcode", by.y="Product_Code")
+        merge(GFPMoutput::productcodes, 
+              by.x = "productcode", by.y="Product_Code")
 
 
 unique(supply[c("productcode", "Product" , "priceelast", "firstelast", "stockelast")]) %>%
@@ -68,9 +76,11 @@ unique(supply[c("productcode", "Product" , "priceelast", "firstelast", "stockela
     kable()
 
 # Remove China, which has a different supply elasticity, see below
-supply2 <- supply %>% filter(countrycode!="j1")
+supply2 <- supply %>% 
+    filter(countrycode!="j1")
 unique(supply2[c("productcode", "Product","priceelast", "firstelast", "stockelast")]) %>%
-    select(productcode, Product, priceelast, firstelast, stockelast) %>%
+    select(productcode, Product, priceelast, 
+           firstelast, stockelast) %>%
     kable()
 ```
 
