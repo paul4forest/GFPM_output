@@ -1,7 +1,13 @@
+---
+output: 
+  html_document: 
+    keep_md: yes
+---
 Tutorial explaining how to load and clean GFPM data
 ===================================
 ```{r, echo=FALSE, warning=FALSE}
 library(plyr)
+library(knitr)
 # Set same path for knitr evaluation as for interactive use
 opts_knit$set(root.dir = '../..')
 ```
@@ -59,18 +65,18 @@ Load a scenario in R and save it to .RDATA
 * Output: Raw data.frames stored in a .RDATA file 
 
 Save the base scenario without compression to a RDATA file
-```{r}
+```{r eval=FALSE}
 savePELPSToRdata("base")
 ```
 
 Save the base scenario from a bzip2 archive to a RDATA file
-```{r}
+```{r eval=FALSE}
 savePELPSToRdata("base", compressed="bzip2")
 ```
 
 
 Save the base scenario from a zip archive to a RDATA file
-```{r}
+```{r eval=FALSE}
 savePELPSToRdata("PELPS 105Base", "zip")
 ```
 
@@ -93,8 +99,7 @@ available for analysis with R.
 * Input: Raw data.frames stored in a .RDATA file
 * Output: cleaned data.frames stored in a .RDATA file
 
-```{r}
-source("code/clean.R")
+```{r eval=FALSE}
 baseScenario = clean("PELPS 105Base.RDATA", "Base")
 ```
 The `baseScenario` object is a list of dataframe. 

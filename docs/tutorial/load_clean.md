@@ -2,30 +2,20 @@ Tutorial explaining how to load and clean GFPM data
 ===================================
 
 
-
-
-Call the load.R, clean.R and func.R scripts
+Load the package
 
 ```r
-source("code/load.R")
-source("code/clean.R")
-source("code/func.R")
+library(GFPMoutput)
 ```
-
-```
-## Warning: package 'ggplot2' was built under R version 3.0.3
-```
-
-
 
 ### Import GFPM data the fast way
 This command loads and cleans GFPM data, saves it in ./enddata:
 
 ```r
-load_and_clean_gfpm_data(scenario_name = "base5") # Give it a scenario name of your choice
+load_and_clean_gfpm_data(scenario_name = "base5", 
+                         pelps_folder = "C:/PELPS/pelps/") # Give it a scenario name of your choice
 load_and_clean_gfpm_data(scenario_name = "base5", compression="bzip2") # Give it a scenario name of your choice
 ```
-
 If you are not interested in the internal workings of load.R and clean.R, 
 and if you only want to analyse results from one scenario,
 you can skip the rest of this document and jump to tutorial/explore.
@@ -46,13 +36,11 @@ In this example, we give the name "dummy" to the scenario
 copy_pelps_folder(scenario_name = "dummy")
 ```
 
-
 To save space, data can be compressed
 
 ```r
 copy_pelps_folder(scenario_name = "dummy", compression="bzip2")
 ```
-
 
 Unfortunately zip compression is not available in writting, it can only be read by R.
 To use zip compression, follow the method "by hand"" below.
@@ -76,31 +64,11 @@ Save the base scenario without compression to a RDATA file
 savePELPSToRdata("base")
 ```
 
-```
-## Warning: cannot open file 'rawdata/base/DEMAND.DAT': No such file or
-## directory
-```
-
-```
-## Error: cannot open the connection
-```
-
-
 Save the base scenario from a bzip2 archive to a RDATA file
 
 ```r
 savePELPSToRdata("base", compressed="bzip2")
 ```
-
-```
-## Warning: cannot open bzip2-ed file 'rawdata/base.tar.bz2', probable reason
-## 'No such file or directory'
-```
-
-```
-## Error: cannot open the connection
-```
-
 
 
 Save the base scenario from a zip archive to a RDATA file
@@ -109,7 +77,6 @@ Save the base scenario from a zip archive to a RDATA file
 savePELPSToRdata("PELPS 105Base", "zip")
 ```
 
-
 List Zip archives available
 
 ```r
@@ -117,13 +84,12 @@ list.files("rawdata", ".zip", full.names = TRUE)
 ```
 
 ```
-## [1] "rawdata/PELPS 105 TFTA High Scenario revision 1.zip"
-## [2] "rawdata/PELPS 105 TFTA Low scenario revision 1.zip" 
-## [3] "rawdata/PELPS 105Base.zip"                          
+## [1] "rawdata/PELPS 105Base.zip"                          
+## [2] "rawdata/PELPS 105 TFTA High Scenario revision 1.zip"
+## [3] "rawdata/PELPS 105 TFTA Low scenario revision 1.zip" 
 ## [4] "rawdata/World105LowGDPelast.zip"                    
 ## [5] "rawdata/World105NoTTIPHighGDPelast.zip"
 ```
-
 
 
 List Raw RDATA files available
@@ -134,14 +100,15 @@ list.files("rawdata", ".RDATA", full.names = TRUE)
 
 ```
 ## [1] "rawdata/base.RDATA"                                   
-## [2] "rawdata/GFPMcodes.RDATA"                              
-## [3] "rawdata/PELPS 105 TFTA High Scenario revision 1.RDATA"
-## [4] "rawdata/PELPS 105 TFTA Low scenario revision 1.RDATA" 
-## [5] "rawdata/PELPS 105Base.RDATA"                          
-## [6] "rawdata/World105LowGDPelast.RDATA"                    
-## [7] "rawdata/World105NoTTIPHighGDPelast.RDATA"
+## [2] "rawdata/bli.RDATA"                                    
+## [3] "rawdata/GFPMcodes.RDATA"                              
+## [4] "rawdata/PELPS 105Base.RDATA"                          
+## [5] "rawdata/PELPS 105 TFTA High Scenario revision 1.RDATA"
+## [6] "rawdata/PELPS 105 TFTA Low scenario revision 1.RDATA" 
+## [7] "rawdata/PELPS October 2014 Ahmed.RDATA"               
+## [8] "rawdata/World105LowGDPelast.RDATA"                    
+## [9] "rawdata/World105NoTTIPHighGDPelast.RDATA"
 ```
-
 
 Clean a scenario
 ----------------
@@ -153,10 +120,8 @@ available for analysis with R.
 
 
 ```r
-source("code/clean.R")
 baseScenario = clean("PELPS 105Base.RDATA", "Base")
 ```
-
 The `baseScenario` object is a list of dataframe. 
 The command `str(baseScenario)` gives details about the structure and content of this data object. 
 Now you can explore the dataset in various ways. See the ./docs folder.
@@ -240,7 +205,6 @@ llply(PELPS,head)
 ## [1] 5
 ```
 
-
 ### Example using the function splittrade 
 
 ```r
@@ -267,7 +231,6 @@ lapply(PELPS2[c("trade", "import", "export")],nrow) #number of rows in PELPS2
 ## $export
 ## [1] 1010
 ```
-
 
 ### Example using the function reshapeLong
 
@@ -300,7 +263,6 @@ head(demand)
 ## Da086.1      1     58  Demand a086
 ```
 
-
 ### Example using the function add product and country
 
 ```r
@@ -324,7 +286,6 @@ head(demand)
 ## 5      3  876.1  Demand
 ## 6      2  120.9  Demand
 ```
-
 
 ### Example using reshapeLong and addProductAndCountry on World price
 
@@ -359,4 +320,3 @@ head(wp)
 ## 5           80 Fuelwood      5        56.3
 ## 6           81 IndRound      3        97.2
 ```
-

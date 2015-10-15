@@ -20,9 +20,9 @@
 
 # Merge selected countries to the countrycodes table
 # summaryCountries$Summary = summaryCountries$Select %in% c("y", TRUE)
-# n = nrow(countryCodes)
-# countryCodes = merge(countryCodes, summaryCountries[c("Summary","Country_Code")], all.x=TRUE)
-# stopifnot(nrow(countryCodes)==n) # Check if we lost some rows during the merge
+# n = nrow(countrycodes)
+# countrycodes = merge(countrycodes, summaryCountries[c("Summary","Country_Code")], all.x=TRUE)
+# stopifnot(nrow(countrycodes)==n) # Check if we lost some rows during the merge
 
 
 
@@ -71,9 +71,9 @@ addProductAndCountry = function(df){
     
     # Add region and Product names
     n = nrow(df)
-    df = merge(countryCodes[c("Country_Code","Country", "GFPM_REG")], #, "EU27", "Summary")],
+    df = merge(countrycodes[c("Country_Code","Country", "GFPM_REG")], #, "EU27", "Summary")],
                    df, by = "Country_Code", all.y=TRUE)
-    df = merge(productCodes[c("Product_Code","Product")],
+    df = merge(productcodes[c("Product_Code","Product")],
                    df, by = "Product_Code", all.y=TRUE)
     
     # Remove code column
@@ -181,7 +181,7 @@ bindScenarios = function(dtf1,dtf2){
 # baseScenario = clean("PELPS 105Base", "Base")
 # highScenario = clean("PELPS 105 TFTA High Scenario revision 1", "HighTTIP")
 # lowScenario = clean("PELPS 105 TFTA Low scenario revision 1", "LowTTIP")
-# save(baseScenario, highScenario, lowScenario, countryCodes,
+# save(baseScenario, highScenario, lowScenario, countrycodes,
 #      file="enddata/GFPM_Output.rdata")
 
 
