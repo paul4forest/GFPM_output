@@ -17,10 +17,6 @@
 # Suggested functionalities: 
 # put load and clean functions in the .func script
 
-##################################
-# Load product and country codes #
-##################################
-load("rawdata/GFPMcodes.RDATA")
 
 # Merge selected countries to the countrycodes table
 # summaryCountries$Summary = summaryCountries$Select %in% c("y", TRUE)
@@ -28,13 +24,6 @@ load("rawdata/GFPMcodes.RDATA")
 # countryCodes = merge(countryCodes, summaryCountries[c("Summary","Country_Code")], all.x=TRUE)
 # stopifnot(nrow(countryCodes)==n) # Check if we lost some rows during the merge
 
-# Change GFPM_REG to an ordered factor - In the order prefered by Buongiorno
-countryCodes$GFPM_REG = factor(countryCodes$GFPM_REG, 
-                               levels= c("Africa", "North/Central America", "South America",
-                                         "Asia","Oceania", "Europe", "Dummy Region xy"),
-                               ordered=TRUE)
-# Check if the conversion to a factor introduced NA values
-stopifnot(nrow(countryCodes[is.na(countryCodes$GFPM_REG),])==0)
 
 
 ###############################

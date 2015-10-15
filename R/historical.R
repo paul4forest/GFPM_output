@@ -2,21 +2,21 @@
 # Update needed see 
 # 
 
-#' Add historical data from FAOSTAT to the GFPM simulations
-#' 
-#'  Calculate consumption and net trade for the FAOSTAT data
-#'  TODO: add historical price in 2010 USD,  
-#' @return A table coutaining both historical and simulated data 
-#' The table should have these columns:
-#' Scenario | Country | Product | Year | Element | Volume
-#'  
-#' Some countries are not in the GFPM
-#' not_in_gfpm <- unique(sawnwood$entity[c("FAOST_CODE", "Country")]) %>%
-#'     merge(transmute(gfpm_countries, 
-#'                     FAOST_CODE = FAOST_CODE, Country_GFPM=Country),
-#'           all.x = TRUE) %>% 
-#'     filter(is.na(Country_GFPM))
-#'     
+# Add historical data from FAOSTAT to the GFPM simulations
+# 
+#  Calculate consumption and net trade for the FAOSTAT data
+#  TODO: add historical price in 2010 USD,  
+# return A table coutaining both historical and simulated data 
+# The table should have these columns:
+# Scenario | Country | Product | Year | Element | Volume
+#  
+# Some countries are not in the GFPM
+# not_in_gfpm <- unique(sawnwood$entity[c("FAOST_CODE", "Country")]) %>%
+#     merge(transmute(gfpm_countries, 
+#                     FAOST_CODE = FAOST_CODE, Country_GFPM=Country),
+#           all.x = TRUE) %>% 
+#     filter(is.na(Country_GFPM))
+#     
 # Table 1 from Calibrating GFPM 2013.doc
 #     |GFPM names|Item Name FAO|File Name|
 #     |:----------|:----------|:----------|

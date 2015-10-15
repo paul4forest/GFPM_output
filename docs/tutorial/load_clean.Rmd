@@ -6,19 +6,16 @@ library(plyr)
 opts_knit$set(root.dir = '../..')
 ```
 
-
-Call the load.R, clean.R and func.R scripts
+Load the package
 ```{r}
-source("code/load.R")
-source("code/clean.R")
-source("code/func.R")
+library(GFPMoutput)
 ```
-
 
 ### Import GFPM data the fast way
 This command loads and cleans GFPM data, saves it in ./enddata:
 ```{r load_and_clean, eval=FALSE}
-load_and_clean_gfpm_data(scenario_name = "base5") # Give it a scenario name of your choice
+load_and_clean_gfpm_data(scenario_name = "base5", 
+                         pelps_folder = "C:/PELPS/pelps/") # Give it a scenario name of your choice
 load_and_clean_gfpm_data(scenario_name = "base5", compression="bzip2") # Give it a scenario name of your choice
 ```
 If you are not interested in the internal workings of load.R and clean.R, 

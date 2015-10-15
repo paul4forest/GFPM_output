@@ -32,15 +32,17 @@
 # WDPRICE	World price of each commodity
 
 
-###############################################
-# Read .DAT files from folder or .zip archive #
-###############################################
-# After running a scenario copy the "C:\PELPS\pelps" directory containing .DAT files
-# and rename the directory to a unique name identifying your scenario
-# This function will convert all interesting .DAT files to R data frames
-# It's also possible to compress the folder as .zip format. 
-
-readPELPSTable = function(scenario_name, fileName, compressed){
+#' Read .DAT files from folder or compressed zip or bzip2 archives
+#' 
+#' After running a scenario copy the "C:\PELPS\pelps" directory containing .DAT files
+#' and rename the directory to a unique name identifying your scenario
+#' This function will convert all interesting .DAT files to R data frames
+#' It's also possible to compress the folder as .zip format. 
+#' @param scenario_name name of a scenario
+#' @param fileName file name
+#' @param compressed "none" for no compression, "zip" or "bzip2"
+#' @export
+readPELPSTable = function(scenario_name, fileName, compressed = "none"){
     if(compressed == "none"){
         return(read.table(paste("rawdata/", scenario_name, "/", fileName, sep=""),
                           header = FALSE, as.is=TRUE))
@@ -71,12 +73,13 @@ readPELPSTable = function(scenario_name, fileName, compressed){
     return(NULL)
 }
 
-###############################################
-# Load a scenario and save it in a Rdata file #
-###############################################
-# Wrapper function that calls the function above 
-# To load the interesting .DAT files from the archive.
-
+#' Load a scenario and save it in a Rdata file 
+#' 
+#' Wrapper function that calls \code{\link{readPELPSTable}()}
+#' to load the interesting .DAT files from the archive.
+#' @param scenario_name name of a scenario
+#' @param compressed, see \code{\link{readPELPSTable}()}
+#' @export
 savePELPSToRdata = function(scenario_name, compressed="none"){
     #Store the number of columns /periods
     numberOfPeriods = ncol(readPELPSTable(scenario_name, "DEMAND.DAT", compressed)) -1
@@ -95,19 +98,23 @@ savePELPSToRdata = function(scenario_name, compressed="none"){
 }
 
 
-############################################## #
-# Copy GFPM output data from c:\PELPS\PELPS #
-############################################## #
-# This function is not needed if you copy the folder by hand to rawdata
-copy_pelps_folder <- function(scenario_name, compression="none",
-                              pelps_folder="C:/PELPS/pelps/"){
-    #' @description
-    #' @param scenario_name character string giving a folder or archive name under which the scenario will be saved
-    #' @param compression character string giving the type of compression to be used (default none).
-    #' @para pelps_folder folder unde which the PELPS data is saved defaults "C:/PELPS/pelps/"
+
+#' Copy GFPM output data from c:\PELPS\PELPS 
+#' 
+#' This function is not needed if you copy the folder by hand to rawdata
+#' @param scenario_name character string giving a folder or archive name under which the scenario will be saved
+#' @param pelps_folder folder unde which the PELPS data is saved defaults "C:/PELPS/pelps/"
+#' @param compression character string giving the type of compression to be used (default none).
+#' @export
+copy_pelps_folder <- function(scenario_name, 
+                              pelps_folder="C:/PELPS/pelps/",
+                              compression="none"){
+    if (!file.exists(pelps_folder)){
+        stop("The folder ",pelps_folder," doesn't exist.")
+    }
     if(compression == "none"){
         if(file.exists(paste0("rawdata/",scenario_name))) {
-            warning("The scenario folder  rawdata/", scenario_name, 
+            stop("The scenario folder  rawdata/", scenario_name, 
                     "  already exists, we can not overwrite.")
             return(FALSE)
         }

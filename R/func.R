@@ -29,9 +29,15 @@ plotProdByReg = function(scenarios, product="", scenario=""){
 
 #' Load and clean gfpm data
 #' @param scenario_name string, name of a scenario
+#' @param pelps_folder path to the pelps folder on windows
 #' @param compression, see the functions copy_pelps_folder and savePELPSToRdata
-load_and_clean_gfpm_data <- function(scenario_name, compression="none"){
-    copy_pelps_folder(scenario_name, compression)
+#' @export
+load_and_clean_gfpm_data <- function(scenario_name, 
+                                     pelps_folder="C:/PELPS/pelps/",
+                                     compression="none"){
+    copy_pelps_folder(scenario_name = scenario_name,
+                      compression = compression, 
+                      pelps_folder=pelps_folder)
     savePELPSToRdata(scenario_name,  compression)
     scenario = clean(paste0(scenario_name,".RDATA"), scenario_name)
     save(scenario, file = paste0("enddata/", scenario_name,".RDATA"))

@@ -6,7 +6,7 @@ opts_chunk$set(fig.width=10)
 
 ```{r warning=FALSE}
 library(plyr)
-source("code/func.R")
+library(GFPMoutput)
 ```
 
 Explore GFPM scenarios

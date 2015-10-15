@@ -21,6 +21,14 @@ summaryCountries = subset(summaryCountries, Select == "y")
 elasticities = read.csv("rawdata/Elasticities.csv")
 elasticities = merge(elasticities, productCodes)
 
+# Change GFPM_REG to an ordered factor - In the order prefered by Buongiorno
+countryCodes$GFPM_REG = factor(countryCodes$GFPM_REG, 
+                               levels= c("Africa", "North/Central America", "South America",
+                                         "Asia","Oceania", "Europe", "Dummy Region xy"),
+                               ordered=TRUE)
+# Check if the conversion to a factor introduced NA values
+stopifnot(nrow(countryCodes[is.na(countryCodes$GFPM_REG),])==0)
+
 # Save product, country codes and selectedCountries to RDATA
 save(productCodes, countryCodes, summaryCountries, elasticities,
      file="rawdata/GFPMcodes.RDATA")
