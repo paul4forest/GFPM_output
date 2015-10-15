@@ -2,7 +2,7 @@
 % Please edit documentation in R/load.R
 \name{copy_pelps_folder}
 \alias{copy_pelps_folder}
-\title{Copy GFPM output data from c:\PELPS\PELPS}
+\title{Copy GFPM output data}
 \usage{
 copy_pelps_folder(scenario_name, pelps_folder = "C:/PELPS/pelps/",
   compression = "none")

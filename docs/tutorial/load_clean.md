@@ -12,9 +12,14 @@ library(GFPMoutput)
 This command loads and cleans GFPM data, saves it in ./enddata:
 
 ```r
-load_and_clean_gfpm_data(scenario_name = "base5", 
+load_and_clean_gfpm_data(scenario_name = "your_scenario_name", 
                          pelps_folder = "C:/PELPS/pelps/") # Give it a scenario name of your choice
-load_and_clean_gfpm_data(scenario_name = "base5", compression="bzip2") # Give it a scenario name of your choice
+load_and_clean_gfpm_data(scenario_name = "your_scenario_name",
+                         compression="bzip2") # Give it a scenario name of your choice
+
+# The cleaned data can be loaded with 
+load("enddata/your_scenario_name.RDATA")
+# It has the form of a large list containing several data frames
 ```
 If you are not interested in the internal workings of load.R and clean.R, 
 and if you only want to analyse results from one scenario,

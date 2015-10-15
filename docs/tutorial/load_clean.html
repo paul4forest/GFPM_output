@@ -68,9 +68,14 @@ img {
 <div id="import-gfpm-data-the-fast-way" class="section level3">
 <h3>Import GFPM data the fast way</h3>
 <p>This command loads and cleans GFPM data, saves it in ./enddata:</p>
-<pre class="r"><code>load_and_clean_gfpm_data(scenario_name = &quot;base5&quot;, 
+<pre class="r"><code>load_and_clean_gfpm_data(scenario_name = &quot;your_scenario_name&quot;, 
                          pelps_folder = &quot;C:/PELPS/pelps/&quot;) # Give it a scenario name of your choice
-load_and_clean_gfpm_data(scenario_name = &quot;base5&quot;, compression=&quot;bzip2&quot;) # Give it a scenario name of your choice</code></pre>
+load_and_clean_gfpm_data(scenario_name = &quot;your_scenario_name&quot;,
+                         compression=&quot;bzip2&quot;) # Give it a scenario name of your choice
+
+# The cleaned data can be loaded with 
+load(&quot;enddata/your_scenario_name.RDATA&quot;)
+# It has the form of a large list containing several data frames</code></pre>
 <p>If you are not interested in the internal workings of load.R and clean.R, and if you only want to analyse results from one scenario, you can skip the rest of this document and jump to tutorial/explore.</p>
 <p>However if you want to analyse several scenarios combined, keep on reading. Below we demonstrate the use of the functions <code>savePELPSToRdata()</code> and <code>clean()</code> to read PELPS data tables.</p>
 </div>

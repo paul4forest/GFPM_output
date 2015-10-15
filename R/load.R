@@ -94,12 +94,15 @@ savePELPSToRdata = function(scenario_name, compressed="none"){
                  numberOfPeriods = numberOfPeriods)
 
     # Save extracted PELPS data in a RDATA file
+    if (!file.exists("rawdata")){
+        dir.create("rawdata")
+    }
     save(PELPS, file=paste("rawdata/", scenario_name,".RDATA", sep=""))
 }
 
 
 
-#' Copy GFPM output data from c:\PELPS\PELPS 
+#' Copy GFPM output data 
 #' 
 #' This function is not needed if you copy the folder by hand to rawdata
 #' @param scenario_name character string giving a folder or archive name under which the scenario will be saved
@@ -115,12 +118,13 @@ copy_pelps_folder <- function(scenario_name,
     if(compression == "none"){
         if(file.exists(paste0("rawdata/",scenario_name))) {
             stop("The scenario folder  rawdata/", scenario_name, 
-                    "  already exists, we can not overwrite.")
+                 "  already exists, we can not overwrite.",
+                 " Change scenario name or delete rawdata/", scenario_name,".")
             return(FALSE)
         }
         project_dir <- getwd()
         flist <- list.files(pelps_folder, full.names = TRUE)
-        dir.create(paste0("rawdata/",scenario_name))
+        dir.create(paste0("rawdata/",scenario_name),recursive = TRUE)
         message("Copy ", pelps_folder, " to ", project_dir,"/rawdata/",scenario_name," ...")
         file.copy(flist, paste0("rawdata/",scenario_name,"/")) #
         cat(length(list.files(paste0("rawdata/",scenario_name))), "files copied")

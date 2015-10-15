@@ -28,6 +28,10 @@ plotProdByReg = function(scenarios, product="", scenario=""){
 ######################################################### #
 
 #' Load and clean gfpm data
+#' 
+#' Calls the function \code{\link{copy_pelps_folder}()} to copy the data
+#' and \code{\link{savePELPSToRdata}()} to clean the data and save it
+#' to an .RDATA file.
 #' @param scenario_name string, name of a scenario
 #' @param pelps_folder path to the pelps folder on windows
 #' @param compression, see the functions copy_pelps_folder and savePELPSToRdata
@@ -40,6 +44,10 @@ load_and_clean_gfpm_data <- function(scenario_name,
                       pelps_folder=pelps_folder)
     savePELPSToRdata(scenario_name,  compression)
     scenario = clean(paste0(scenario_name,".RDATA"), scenario_name)
+    # Save cleaned PELPS data in a RDATA file
+    if (!file.exists("enddata")){
+        dir.create("enddata")
+    }
     save(scenario, file = paste0("enddata/", scenario_name,".RDATA"))
     if(file.exists(paste0("enddata/", scenario_name,".RDATA"))) {
         message("Data available in  enddata/", scenario_name,".RDATA")

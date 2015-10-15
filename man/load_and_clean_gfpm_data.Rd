@@ -15,6 +15,8 @@ load_and_clean_gfpm_data(scenario_name, pelps_folder = "C:/PELPS/pelps/",
 \item{compression,}{see the functions copy_pelps_folder and savePELPSToRdata}
 }
 \description{
-Load and clean gfpm data
+Calls the function \code{\link{copy_pelps_folder}()} to copy the data
+and \code{\link{savePELPSToRdata}()} to clean the data and save it
+to an .RDATA file.
 }
 
