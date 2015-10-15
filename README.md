@@ -40,6 +40,12 @@ You will need to install the GFPM and the R statisticall software. Links to the 
 install.packages(c("plyr", "ggplot2"))
 ```
 
+### Installing the package itself
+```
+install.packages("devtools") # if not installed already
+devtools::install_github("paul4forest/GFPMoutput")
+```
+
 ### Importing GFPM data
 After a GFPM scenario has been run, simulation results are stored 
 in plain text .DAT files in the `C:\PELPS\PELPS` folder.
