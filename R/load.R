@@ -79,6 +79,7 @@ readPELPSTable = function(scenario_name, fileName, compressed = "none"){
 #' to load the interesting .DAT files from the archive.
 #' @param scenario_name name of a scenario
 #' @param compressed, see \code{\link{readPELPSTable}()}
+#' @return A list of scenarios, saved in a RDATA file.
 #' @export
 savePELPSToRdata = function(scenario_name, compressed="none"){
     #Store the number of columns /periods

@@ -11,6 +11,9 @@ savePELPSToRdata(scenario_name, compressed = "none")
 
 \item{compressed,}{see \code{\link{readPELPSTable}()}}
 }
+\value{
+A list of scenarios, saved in a RDATA file.
+}
 \description{
 Wrapper function that calls \code{\link{readPELPSTable}()}
 to load the interesting .DAT files from the archive.

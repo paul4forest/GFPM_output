@@ -8,9 +8,11 @@ library(ggplot2)
 
 
 
-############################### #
-# Plot Summary by GFPM regions  #
-############################### #
+#' Plot Summary by GFPM regions  
+#'
+#' @param scenarios a list of scenarios, output of \code{\link{savePELPSToRdata}()}
+#' @param product a vector of product names to select
+#' @param sceario a vector of scenario names to select
 plotProdByReg = function(scenarios, product="", scenario=""){
     dtf = subset(scenarios$aggregates, Product==product & Scenario==scenario)
     # Plot elements on the same graph using a facet
@@ -23,13 +25,9 @@ plotProdByReg = function(scenarios, product="", scenario=""){
     print(p)
 }
 
-######################################################### #
-# Load and clean the last run scenario from PELPS folder  #
-######################################################### #
-
-#' Load and clean gfpm data
+#' Load and clean the last GFPM scenario from the PELPS folder
 #' 
-#' Calls the function \code{\link{copy_pelps_folder}()} to copy the data
+#' Calls the functions \code{\link{copy_pelps_folder}()} to copy PELPS data
 #' and \code{\link{savePELPSToRdata}()} to clean the data and save it
 #' to an .RDATA file.
 #' @param scenario_name string, name of a scenario

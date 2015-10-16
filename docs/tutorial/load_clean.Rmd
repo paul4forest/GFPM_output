@@ -28,6 +28,8 @@ load_and_clean_gfpm_data(scenario_name = "your_scenario_name",
 # The cleaned data can be loaded with 
 load("enddata/your_scenario_name.RDATA")
 # It has the form of a large list containing several data frames
+# You can see the begining of each data frame with the command
+lapply(scenario,head)
 ```
 If you are not interested in the internal workings of load.R and clean.R, 
 and if you only want to analyse results from one scenario,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/func.R
 \name{load_and_clean_gfpm_data}
 \alias{load_and_clean_gfpm_data}
-\title{Load and clean gfpm data}
+\title{Load and clean the last GFPM scenario from the PELPS folder}
 \usage{
 load_and_clean_gfpm_data(scenario_name, pelps_folder = "C:/PELPS/pelps/",
   compression = "none")
@@ -15,7 +15,7 @@ load_and_clean_gfpm_data(scenario_name, pelps_folder = "C:/PELPS/pelps/",
 \item{compression,}{see the functions copy_pelps_folder and savePELPSToRdata}
 }
 \description{
-Calls the function \code{\link{copy_pelps_folder}()} to copy the data
+Calls the functions \code{\link{copy_pelps_folder}()} to copy PELPS data
 and \code{\link{savePELPSToRdata}()} to clean the data and save it
 to an .RDATA file.
 }
