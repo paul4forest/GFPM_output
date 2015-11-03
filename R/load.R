@@ -111,7 +111,7 @@ savePELPSToRdata = function(scenario_name, compressed="none"){
 #' @param compression character string giving the type of compression to be used (default none).
 #' @export
 copy_pelps_folder <- function(scenario_name, 
-                              pelps_folder="C:/PELPS/pelps/",
+                              pelps_folder="C:/PELPS/pelps",
                               compression="none"){
     if (!file.exists(pelps_folder)){
         stop("The folder ",pelps_folder," doesn't exist.")
