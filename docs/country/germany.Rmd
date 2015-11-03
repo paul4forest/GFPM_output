@@ -1,0 +1,19 @@
+---
+title: "Germany"
+author: "Paul Rougieux"
+date: "3 November 2015"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+library(dplyr)
+defr <- mydata %>% filter(Country %in% c("France", "Germany"))
+ggplot(data=defr) +
+    aes(x=Period, y=Volume, colour=Country, label = Country) +
+    geom_line() + 
+    #     geom_text(data=GFPMoutput$aggregates) +
+    theme(legend.position = "bottom") +
+    facet_wrap(Scenario ~ Element ) 
+
+```

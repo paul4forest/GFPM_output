@@ -23,6 +23,6 @@ draft2013/
 
 # Ignore png images exept in the tutorial folder
 *.png
-!docs/tutorial/**/*
+# !docs/tutorial/**/*
 
 .Rproj.user

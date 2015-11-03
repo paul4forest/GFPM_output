@@ -1,25 +1,54 @@
+---
+title: "Explore GFPM data"
+author: "Paul Rougieux"
+output: 
+  html_document: 
+    keep_md: yes
+    toc: yes
+---
+
+
+```{r warning=FALSE}
+library(GFPMoutput)
+library(knitr)
+library(plyr) # Remove this once the call to ldply() has been removed
+library(dplyr)
+library(ggplot2)
+```
+
+
 ```{r, echo=FALSE}
 # Set same path for knitr evaluation as for interactive use
 opts_knit$set(root.dir = '../..')
 opts_chunk$set(fig.width=10)
 ```
 
-```{r warning=FALSE}
-library(plyr)
-library(GFPMoutput)
-library(ggplot2)
-```
-
-Explore GFPM scenarios
-=====================
-Load scenario
+# Load scenario data
+Your scenario will reside in the `enddata` folder.
+If it was created with the `load_and_clean_gfpm_data()` function, 
+the data object will be called `scenario`.
+The data object used below for demonstration purposes is called
+`trainingScenarios`, because it contains several scenarios.
 ```{r}
 load("enddata/GFPM_training_scenarios.RDATA")
 ```
 
-Plots
------
-### Base scenario
+## What is the structure of "trainingScenarios"
+The data structure `scenario` and `trainingScenarios` are
+lists of data frames:
+
+ * scenario contains the scenario names and file names
+ * entity contains the Supply, DPrice, Import, Demand, Export and Production data at the country level
+ * aggregates contains the Supply, DPrice, Import, Demand, Export and Production at the regional level
+ * worldPrices contains the world prices
+ 
+```{r}
+str(trainingScenarios)
+```
+
+
+# Plots
+## Base scenario
 ```{r sawnwood_base}
 plotProdByReg(trainingScenarios, "Sawnwood", "Base")
 ```
@@ -28,13 +57,20 @@ plotProdByReg(trainingScenarios, "Sawnwood", "Base")
 plotProdByReg(trainingScenarios, "IndRound", "Base")
 ```
 
-### Compare the base scenario with other scenarios
+## Plot by country 
+```{r countryplotbase}
+# Sample plot for the base scenario for France and Germany
+
+```
+
+
+## Compare the base scenario with other scenarios
 The other 2 training scenarios, where calculated by changing the demand
 elasticities by plus or minus 1 standard error, corresponding to a 
 confidence intereval of 70%.
 ```{r sawnwood_demand}
-dtf <- subset(trainingScenarios$aggregates, Product=="Sawnwood"& Element=="Demand")
-ggplot(data = dtf) +
+sawnwood <- subset(trainingScenarios$aggregates, Product=="Sawnwood"& Element=="Demand")
+ggplot(data = sawnwood) +
     aes(x = Period, y = Volume, colour = GFPM_REG, linetype = Scenario) +
     geom_line() + ggtitle("Sawnwood Demand") +
     theme(legend.position = "bottom")
@@ -42,28 +78,29 @@ ggplot(data = dtf) +
 
 Compare for all products
 ```{r compare_demand_scenarios}
-dtf <- subset(trainingScenarios$aggregates, Element=="Demand" & 
+paperproducts <- subset(trainingScenarios$aggregates, Element=="Demand" & 
                   ! Product %in% c("MechPlp", "ChemPlp", "WastePaper"))
-ggplot(data = dtf) +
+ggplot(data = paperproducts) +
     aes(x = Period, y = Volume, colour = GFPM_REG, linetype = Scenario) +
     geom_line() + ggtitle("Demand") +
     theme(legend.position = "bottom") + facet_wrap(~Product, scales="free_y")
 ```
 
-Data summaries
---------------
-### What products are demanded, supplied, produced or traded ?
+# Data summaries
+## What products are demanded, supplied, produced or traded ?
 ```{r}
 whatproducts = function(dtf){unique(dtf$Product)}
 dlply(trainingScenarios$entity, .(Element), whatproducts)[-2]
+
+# lapply(trainingScenarios$entity, whatproducts)
+# whatproducts = function(dtf){data.frame(products = unique(dtf$Product))}
+# bli <- trainingScenarios$entity %>% group_by(Element) %>% do(bli=data.frame(whatproducts))
+# trainingScenarios$entity %>% select(Element, Product) %>% distinct() %>%
+#     group_by(Element) %>% 
+#     mutate(bli = paste(unique(Product),collapse=", ")) %>% kable()
 ```
 * IndRound is supplied and traded but not demanded, it's a primary product.
 * OthFbrPlp and WastePaper are supplied and traded but not demanded, they are primary products.
 * Fuelwood is both supplied and demanded it's both a primary and a final product.
 * Fuelwood is not the outcome of a production process.
-
-### What is the structure of "trainingScenarios"
-```{r}
-str(trainingScenarios)
-```
 
