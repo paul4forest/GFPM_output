@@ -8,12 +8,12 @@ output:
 ---
 
 
-```{r warning=FALSE}
+```{r warning=FALSE, message=FALSE}
 library(GFPMoutput)
 library(knitr)
-library(plyr) # Remove this once the call to ldply() has been removed
 library(dplyr)
 library(ggplot2)
+library(scales)
 ```
 
 
@@ -24,52 +24,120 @@ opts_chunk$set(fig.width=10)
 ```
 
 # Load scenario data
-Your scenario will reside in the `enddata` folder.
-If it was created with the `load_and_clean_gfpm_data()` function, 
-the data object will be called `scenario`.
-The data object used below for demonstration purposes is called
-`trainingScenarios`, because it contains several scenarios.
+If you created a scenario with the `load_and_clean_gfpm_data()` function,  your scenario will be stored in the `enddata` folder.
+The data object used for demonstration purposes is called `trainingscenarios`.
+It is a list of data frames. 
 ```{r}
-load("enddata/GFPM_training_scenarios.RDATA")
+basescenario <- readRDS("enddata/basescenario.rds")
+trainingscenarios <- readRDS("enddata/GFPM_training_scenarios.rds")
 ```
+To bind several scenarios together in one list,
+use the `bindscenarios()` function.
 
-## What is the structure of "trainingScenarios"
-The data structure `scenario` and `trainingScenarios` are
-lists of data frames:
 
- * scenario contains the scenario names and file names
- * entity contains the Supply, DPrice, Import, Demand, Export and Production data at the country level
+## What is the structure of "trainingscenarios"
+`trainingscenarios` is a list of data frames:
+
+ * scenario data frame contains scenario names and file names
+ * entity data frame contains the Supply, DPrice, Import, Demand, Export and Production data at the country level
  * aggregates contains the Supply, DPrice, Import, Demand, Export and Production at the regional level
  * worldPrices contains the world prices
  
 ```{r}
-str(trainingScenarios)
+str(trainingscenarios)
 ```
+
+You can extract individual data frames with the command:
+```{r}
+countrydata <- trainingscenarios$entity 
+regiondata <- trainingscenarios$aggregates 
+```
+
+
+## How many periods are there per scenario?
+```{r}
+trainingscenarios$aggregates %>% group_by(Scenario) %>% 
+    summarise(number_of_periods = max(Period)) %>% kable()
+# Remove periods for base2011 so that all scenarios have the same periods for plotting
+trainingscenarios$aggregates <- trainingscenarios$aggregates %>%
+    filter(Period <= 5)
+trainingscenarios$entity <- trainingscenarios$entity %>%
+    filter(Period <= 5)
+```
+
+
+## What products are demanded, supplied, produced or traded ?
+
+* IndRound is supplied and traded but not demanded, it's a primary product.
+* OthFbrPlp and WastePaper are supplied and traded but not demanded, they are primary products.
+* Fuelwood is both supplied and demanded it's both a primary and a final product.
+* Fuelwood is not the outcome of a production process.
+
+```{r}
+trainingscenarios$entity %>% group_by(Element) %>%
+    summarise(Products = paste(unique(Product),collapse=", ")) %>% kable()
+```
+
+## What countries are in the simulation?
+```{r countriesingfpm, results='asis'}
+countries <- sort(unique(trainingscenarios$entity$Country))
+# Convert to utf8 because of character encoding issue
+cat(iconv(countries,"latin1","UTF-8"),sep= ", ")
+```
+
 
 
 # Plots
 ## Base scenario
 ```{r sawnwood_base}
-plotProdByReg(trainingScenarios, "Sawnwood", "Base")
+plotprodbyreg(trainingscenarios, "Sawnwood", "Base")
 ```
 
 ```{r roundwood_base}
-plotProdByReg(trainingScenarios, "IndRound", "Base")
+plotprodbyreg(trainingscenarios, "IndRound", "Base")
 ```
+
 
 ## Plot by country 
+Sample plot for Sanwood demand in the base scenario, in France and Germany.
 ```{r countryplotbase}
-# Sample plot for the base scenario for France and Germany
-
+plotprodbycounty(trainingscenarios, "Sawnwood", "Base",
+                 c("France", "Germany"))
 ```
 
+The above function generates a plot based on the given arguments.
+For greater flexibility you are encouraged to read about 
+[ggplot2 package](ggplot2.org). 
+Here is an example plot showing 
+demand, export, import and production of selected panel products 
+in the United States in the base scenario.
+
+```{r countryplotbaseallproducts, eval=TRUE}
+usademand <- trainingscenarios$entity %>% 
+    filter(Country == "United States of America" & 
+               Element %in% c("Demand", "Production",
+                              "Import", "Export") &
+               Product %in% c("ParticleB", "FiberB","Plywood") &
+               Scenario == "Base")
+
+ggplot(data=usademand) +
+    aes(x=Period, y=Volume, colour=Product) +
+    geom_line() + 
+    theme(legend.position = "bottom") +
+    facet_grid(~ Element) 
+```
+Example of a description for this graph. 
+The base scenario simulated 
+a decrease in particle board production 
+and an increase in demand over the 5 periods. 
+The increased particle board demand was compensated by increases in imports. On the other hand fibre board and plywood import decreased over the period.
 
 ## Compare the base scenario with other scenarios
 The other 2 training scenarios, where calculated by changing the demand
 elasticities by plus or minus 1 standard error, corresponding to a 
 confidence intereval of 70%.
 ```{r sawnwood_demand}
-sawnwood <- subset(trainingScenarios$aggregates, Product=="Sawnwood"& Element=="Demand")
+sawnwood <- subset(trainingscenarios$aggregates, Product=="Sawnwood"& Element=="Demand")
 ggplot(data = sawnwood) +
     aes(x = Period, y = Volume, colour = GFPM_REG, linetype = Scenario) +
     geom_line() + ggtitle("Sawnwood Demand") +
@@ -78,29 +146,11 @@ ggplot(data = sawnwood) +
 
 Compare for all products
 ```{r compare_demand_scenarios}
-paperproducts <- subset(trainingScenarios$aggregates, Element=="Demand" & 
+paperproducts <- subset(trainingscenarios$aggregates, Element=="Demand" & 
                   ! Product %in% c("MechPlp", "ChemPlp", "WastePaper"))
 ggplot(data = paperproducts) +
     aes(x = Period, y = Volume, colour = GFPM_REG, linetype = Scenario) +
     geom_line() + ggtitle("Demand") +
     theme(legend.position = "bottom") + facet_wrap(~Product, scales="free_y")
 ```
-
-# Data summaries
-## What products are demanded, supplied, produced or traded ?
-```{r}
-whatproducts = function(dtf){unique(dtf$Product)}
-dlply(trainingScenarios$entity, .(Element), whatproducts)[-2]
-
-# lapply(trainingScenarios$entity, whatproducts)
-# whatproducts = function(dtf){data.frame(products = unique(dtf$Product))}
-# bli <- trainingScenarios$entity %>% group_by(Element) %>% do(bli=data.frame(whatproducts))
-# trainingScenarios$entity %>% select(Element, Product) %>% distinct() %>%
-#     group_by(Element) %>% 
-#     mutate(bli = paste(unique(Product),collapse=", ")) %>% kable()
-```
-* IndRound is supplied and traded but not demanded, it's a primary product.
-* OthFbrPlp and WastePaper are supplied and traded but not demanded, they are primary products.
-* Fuelwood is both supplied and demanded it's both a primary and a final product.
-* Fuelwood is not the outcome of a production process.
 

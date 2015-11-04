@@ -34,7 +34,7 @@
 
 #' Read .DAT files from folder or compressed zip or bzip2 archives
 #' 
-#' After running a scenario copy the "C:\PELPS\pelps" directory containing .DAT files
+#' After running a scenario copy the "C:\\PELPS\\pelps" directory containing .DAT files
 #' and rename the directory to a unique name identifying your scenario
 #' This function will convert all interesting .DAT files to R data frames
 #' It's also possible to compress the folder as .zip format. 

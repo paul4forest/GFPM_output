@@ -1,3 +1,8 @@
+---
+output: 
+  html_document: 
+    toc: yes
+---
 This program reads output simulation of the __Global Forest Product Model (GFPM)__. 
 The system converts raw GFPM output (text files .DAT) into dataframes. So that you can avoid using Excel macros to display GFPM simulations. Based on the converted data, several reports can be generated in the form of html, pdf or Excel documents. It can be used to plot consumption, production and trade volumes for more than 2 scenarios and to automate various calculations such as welfare and value added.
 
@@ -46,6 +51,7 @@ install.packages("devtools") # if not installed already
 devtools::install_github("paul4forest/GFPMoutput")
 ```
 
+
 ### Importing GFPM data
 After a GFPM scenario has been run, simulation results are stored 
 in plain text .DAT files in the `C:\PELPS\PELPS` folder.
@@ -72,19 +78,27 @@ test_dir("tests")
 ```
 As of January 2014 system.time() tells that all tests take less than 3 seconds to run.
 
+
 Code 
 -----
-The R program is composed of 3 scripts in the ./code folder:
+
+The R program is composed of 3 scripts in the ./R folder:
 * Load.r
 * clear.r
 * func.r
 Scripts can be run in this order.
 
+### Data
 Other folders contain data and output documents
 * /rawdata
 * /enddata
 * /Docs folder where output graphs are produced
 using Knitr, a program that enables to embedd R code in Latex documents.
+
+### Naming convention
+It is better to use lowercase letter in column names and element names.
+But because GFPM uses a first upper case letter for its column names.
+These were kept as is, for consistency with gfpm.
 
 
 Git 
@@ -100,6 +114,7 @@ In order to ignore bulky files, a .gitignore file is placed in the ./rawdata fol
 *
 !.gitignore
 ```
+
 
 Comments and suggested improvements
 --------------------------------
@@ -129,6 +144,7 @@ Error in read.table(con, header = FALSE, as.is = TRUE) :
   seek not enabled for this connection
 ```
 
+
 ### Table of contents
 Knitr creator Yihui explained [in a comment on this forum](http://stackoverflow.com/a/14664227/2641825) 
 how to add a table of content to a Rmd file using the knit2html() function:
@@ -139,6 +155,7 @@ knit2html('docs/tutorial/load_clean.Rmd', options = c('toc', markdown::markdownH
 See [my blog post](http://paulremote.blogspot.fr/2014/01/add-table-of-content-to-html-files.html) on 
 how I followed the RSTUDIO advice to
 [customize markdown rendering](http://www.rstudio.com/ide/docs/authoring/markdown_custom_rendering).
+
 
 Changelog
 ---------
@@ -160,3 +177,7 @@ October-November 2014:
 * Include historical data
 * Create country reports, use newer version of rmarkdown to create PDF documents.
 * Started using dplyr to process data frames
+
+October-November 2014
+* make load clean create the rawdata and enddata folders correctly
+* update tutorial and installations instructions

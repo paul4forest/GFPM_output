@@ -26,11 +26,6 @@
 
 
 
-###############################
-# Functions to clean the data #
-###############################
-# Functions are tested one by one in the example at the bottom of this script
-#
 
 # Split trade in 2 dataframes for import and export #
 splittrade = function(P){
@@ -117,12 +112,14 @@ aggregateByGFPMRegions = function(otpt){
 }
 
 
-#########
-# Clean # 
-#########
-# calls functions defined above
-# - Input loads a PELPS data frame from the file "scenario_name" for a scenario
-# - Ouput is a list of tables for that scenario
+
+#' Clean 
+#' 
+#' loads a PELPS data frame from the file "scenario_name" for a scenario
+#' @param fileName name of the raw data file
+#' @param name given to the scenario
+#' @return A list of tables for that scenario
+#' @export
 clean = function(fileName, scenario_name, path="rawdata/"){
     load(paste(path, fileName, sep=""))
     P = splittrade(PELPS)
@@ -161,22 +158,29 @@ clean = function(fileName, scenario_name, path="rawdata/"){
 }
 
 
-############################################################
-# # Bind scenarios together and save an alternative output #
-############################################################
-# The output above is fine for analysing scenarios one by one
-# It turns out that I prefer to have all scenarios in one data frame
-# Its practical when comparing scenarios
-bindScenarios = function(dtf1,dtf2){
-    list(scenario = rbind(dtf1$scenario, dtf2$scenario),
-         entity = rbind(dtf1$entity, dtf2$entity),
-         aggregates = rbind(dtf1$aggregates,dtf2$aggregates), 
-         worldPrices = rbind(dtf1$worldPrices, dtf2$worldPrices))
+
+#' Bind scenarios together and save an alternative output
+#'
+#' It is fine to analysing scenarios one by one.
+#' But when comparing scenarios, 
+#' it is sometimes preferable to have all scenarios 
+#' in one data frame. 
+#' Since scenario data is storred in a list of 4 data frames,
+#' this function does the job of binding each data frame in turn.
+#' @param scenario1 scenario object created 
+#' by the \code{\link{clean}()} function or 
+#' by the \code{\link{load_and_clean_gfpm_data}()} functions
+#' @param scenario2 another scenario object
+#' @return List of data frames
+#' @export
+bindScenarios = function(scenario1,scenario2){
+    list(scenario = rbind(scenario1$scenario, scenario2$scenario),
+         entity = rbind(scenario1$entity, scenario2$entity),
+         aggregates = rbind(scenario1$aggregates,scenario2$aggregates), 
+         worldPrices = rbind(scenario1$worldPrices, scenario2$worldPrices))
 }
 
-#################################
-# Save scenarios alone as RDATA #
-#################################
+# Save scenarios alone as RDATA #####
 # Save scenarios alone
 # baseScenario = clean("PELPS 105Base", "Base")
 # highScenario = clean("PELPS 105 TFTA High Scenario revision 1", "HighTTIP")
@@ -185,9 +189,46 @@ bindScenarios = function(dtf1,dtf2){
 #      file="enddata/GFPM_Output.rdata")
 
 
-##############################################################
-# Load, clean and save GFPM scenarios to the end data folder #
-##############################################################
+
+#' Load and clean the last GFPM scenario from the PELPS folder
+#' 
+#' Calls the functions \code{\link{copy_pelps_folder}()} 
+#' to copy the raw PELPS data in the ./rawdata folder.
+#' Calls the function \code{\link{savePELPSToRdata}()} 
+#' to clean the data and save it to an .RDATA file in the ./rawdata folder.
+#' Calls the function \code{\link{clean}()} to clean the data.
+#' Then save the cleaned data as an .rds file in the enddata folder.
+#' The RDS format is explained in \code{\link{saveRDS}()}.
+#' If the ./rawdata and ./enddata folder do not exists, they will
+#' be created under the working directory.
+#' @param scenario_name string, name of a scenario
+#' @param pelps_folder path to the pelps folder on windows
+#' @param compression, see the functions copy_pelps_folder and savePELPSToRdata
+#' @export
+load_and_clean_gfpm_data <- function(scenario_name, 
+                                     pelps_folder="C:/PELPS/pelps/",
+                                     compression="none"){
+    copy_pelps_folder(scenario_name = scenario_name,
+                      compression = compression, 
+                      pelps_folder=pelps_folder)
+    # Save raw data
+    savePELPSToRdata(scenario_name,  compression)
+    # Clean
+    scenario = clean(paste0(scenario_name,".RDATA"), scenario_name)
+    # Save cleaned data 
+    if (!file.exists("enddata")){
+        dir.create("enddata")
+    }
+    saveRDS(scenario, file = paste0("enddata/", scenario_name,".rds"))
+    if(file.exists(paste0("enddata/", scenario_name,".rds"))) {
+        message("Data available in  enddata/", scenario_name,".rds")
+    }
+}
+
+
+
+
+# Load, clean and save GFPM scenarios to the end data folder ####
 clean_main_scenarios = function() {
     message("Cleaning main PELPS data for scenarios ...")
     baseScenario = clean(fileName = "PELPS 105Base.RDATA", scenario_name = "Base")
@@ -219,6 +260,7 @@ clean_main_scenarios = function() {
     trainingScenarios = bindScenarios(trainingScenarios, basehighelast)
     trainingScenarios = bindScenarios(trainingScenarios, base2011)
     save(trainingScenarios, file="enddata/GFPM_training_scenarios.RDATA")
+    saveRDS(trainingScenarios, file="enddata/GFPM_training_scenarios.rds")
 }
 
 if (FALSE){

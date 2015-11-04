@@ -18,12 +18,16 @@ library(GFPMoutput)
 ```
 
 ### Import GFPM data the fast way
-This command loads and cleans GFPM data, saves it in ./enddata:
+This command loads and cleans GFPM data, saves it in ./enddata.
+GIve a scenario name of your choice.
 ```{r load_and_clean, eval=FALSE}
 load_and_clean_gfpm_data(scenario_name = "your_scenario_name", 
-                         pelps_folder = "C:/PELPS/pelps/") # Give it a scenario name of your choice
+                         pelps_folder = "C:/PELPS/pelps/") 
 load_and_clean_gfpm_data(scenario_name = "your_scenario_name",
-                         compression="bzip2") # Give it a scenario name of your choice
+                         compression="bzip2")
+# Test on development system
+load_and_clean_gfpm_data(scenario_name = "basescenario3", 
+                         pelps_folder = "rawdata/PELPS 105Base") 
 
 # The cleaned data can be loaded with 
 load("enddata/your_scenario_name.RDATA")
