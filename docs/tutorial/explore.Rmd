@@ -16,6 +16,12 @@ library(ggplot2)
 library(scales)
 ```
 
+```{r echo=FALSE}
+# Github flavoured markdown for tables
+# http://stackoverflow.com/questions/28687826/how-to-generate-a-github-flavoured-markdown-file-using-knitr
+options(knitr.table.format = 'markdown')
+```
+
 
 ```{r, echo=FALSE}
 # Set same path for knitr evaluation as for interactive use

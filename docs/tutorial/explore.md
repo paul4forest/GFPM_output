@@ -14,6 +14,8 @@ library(scales)
 
 
 
+
+
 # Load scenario data
 If you created a scenario with the `load_and_clean_gfpm_data()` function,  your scenario will be stored in the `enddata` folder.
 The data object used for demonstration purposes is called `trainingscenarios`.
@@ -87,12 +89,12 @@ trainingscenarios$aggregates %>% group_by(Scenario) %>%
 
 
 
-Scenario         number_of_periods
---------------  ------------------
-Base                             5
-Base2011                        21
-BaseHighElast                    5
-BaseLowElast                     5
+|Scenario      | number_of_periods|
+|:-------------|-----------------:|
+|Base          |                 5|
+|Base2011      |                21|
+|BaseHighElast |                 5|
+|BaseLowElast  |                 5|
 
 ```r
 # Remove periods for base2011 so that all scenarios have the same periods for plotting
@@ -118,14 +120,14 @@ trainingscenarios$entity %>% group_by(Element) %>%
 
 
 
-Element      Products                                                                                                                           
------------  -----------------------------------------------------------------------------------------------------------------------------------
-DPrice       Fuelwood, OthIndRound, Sawnwood, Plywood, ParticleB, FiberB, MechPlp, ChemPlp, WastePaper, Newsprint, PWPaper, OthPaper, OthFbrPlp 
-Demand       Fuelwood, OthIndRound, Sawnwood, Plywood, ParticleB, FiberB, MechPlp, ChemPlp, WastePaper, Newsprint, PWPaper, OthPaper, OthFbrPlp 
-Export       Fuelwood, IndRound, Sawnwood, Plywood, ParticleB, FiberB, MechPlp, ChemPlp, OthFbrPlp, WastePaper, Newsprint, PWPaper, OthPaper    
-Import       Fuelwood, IndRound, Sawnwood, Plywood, ParticleB, FiberB, MechPlp, ChemPlp, OthFbrPlp, WastePaper, Newsprint, PWPaper, OthPaper    
-Production   Sawnwood, Plywood, ParticleB, FiberB, MechPlp, ChemPlp, Newsprint, PWPaper, OthPaper                                               
-Supply       Fuelwood, IndRound, OthIndRound, OthFbrPlp, WastePaper, MechPlp, OthPaper                                                          
+|Element    |Products                                                                                                                           |
+|:----------|:----------------------------------------------------------------------------------------------------------------------------------|
+|DPrice     |Fuelwood, OthIndRound, Sawnwood, Plywood, ParticleB, FiberB, MechPlp, ChemPlp, WastePaper, Newsprint, PWPaper, OthPaper, OthFbrPlp |
+|Demand     |Fuelwood, OthIndRound, Sawnwood, Plywood, ParticleB, FiberB, MechPlp, ChemPlp, WastePaper, Newsprint, PWPaper, OthPaper, OthFbrPlp |
+|Export     |Fuelwood, IndRound, Sawnwood, Plywood, ParticleB, FiberB, MechPlp, ChemPlp, OthFbrPlp, WastePaper, Newsprint, PWPaper, OthPaper    |
+|Import     |Fuelwood, IndRound, Sawnwood, Plywood, ParticleB, FiberB, MechPlp, ChemPlp, OthFbrPlp, WastePaper, Newsprint, PWPaper, OthPaper    |
+|Production |Sawnwood, Plywood, ParticleB, FiberB, MechPlp, ChemPlp, Newsprint, PWPaper, OthPaper                                               |
+|Supply     |Fuelwood, IndRound, OthIndRound, OthFbrPlp, WastePaper, MechPlp, OthPaper                                                          |
 
 ## What countries are in the simulation?
 
