@@ -82,8 +82,14 @@ readPELPSTable = function(scenario_name, fileName, compressed = "none"){
 #' @return A list of scenarios, saved in a RDATA file.
 #' @export
 savePELPSToRdata = function(scenario_name, compressed="none"){
+    if (compressed == "zip"){
+        message("For information: the internal folder in the zip ",
+                "archive should also be called: ", scenario_name)
+    }
+    
     #Store the number of columns /periods
     numberOfPeriods = ncol(readPELPSTable(scenario_name, "DEMAND.DAT", compressed)) -1
+    
 
     PELPS = list(scenario_name = scenario_name, 
                  demand = readPELPSTable(scenario_name, "DEMAND.DAT", compressed), 

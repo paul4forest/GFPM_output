@@ -1,5 +1,5 @@
-# This script is only working on the development machine
-# Update needed see 
+#' This script is only working on the development machine
+#' Update needed see 
 # 
 
 # Add historical data from FAOSTAT to the GFPM simulations
@@ -39,23 +39,24 @@
 #     |Waste Paper|Recovered Paper|WastePaper.csv|
 #     |Forest Stock and Area|Forest Stock and Area|Forest.csv|
 
-
-library(ggplot2)
-library(dplyr)
-library(reshape2)
-
+#' prepare historical data to display along GFPM simulations
 if(FALSE){
+    library(ggplot2)
+    library(dplyr)
+    library(reshape2)
     
     # Load conversion tables 
     gfpm_countries = read.csv("rawdata/GFPM country codes 4.csv")
     gfpm_products = read.csv("rawdata/GFPM product codes 2.csv")
     
     
-    #' Calculate consumption and net trade
+    #' @name calculateConsumptionNetTrade
+    #' @description Calculate consumption and net trade
     #' Keep this function so that
     #' the change of NA values to 0 only affects this calculation
     #' In other words, NA values for production and trade volumes
-    #' are kept in the fao table
+    #' are kept in the FAO table
+    #' @param dtf
     calculateConsumptionNetTrade = function(dtf){
         # Change NA values to 0 - Not recommended 
         # But makes sence at least that import into Finland and Sweden are 0

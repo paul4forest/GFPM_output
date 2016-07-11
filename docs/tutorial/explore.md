@@ -142,7 +142,7 @@ Afghanistan, Albania, Algeria, Angola, Argentina, Armenia, Australia, Austria, A
 
 
 # Plots
-## Base scenario
+## Plot by region
 
 ```r
 plotprodbyreg(trainingscenarios, "Sawnwood", "Base")
@@ -198,8 +198,8 @@ a decrease in particle board production
 and an increase in demand over the 5 periods. 
 The increased particle board demand was compensated by increases in imports. On the other hand fibre board and plywood import decreased over the period.
 
-## Compare the base scenario with other scenarios
-The other 2 training scenarios, where calculated by changing the demand
+## Compare scenarios
+Two training scenarios where calculated by changing the demand
 elasticities by plus or minus 1 standard error, corresponding to a 
 confidence intereval of 70%.
 

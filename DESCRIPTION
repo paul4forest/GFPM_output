@@ -1,15 +1,17 @@
 Package: GFPMoutput
 Type: Package
-Title: This program reads output simulation of the Global Forest Product Model (GFPM). 
+Title: This program reads output simulation of the Global Forest Product Model
+    (GFPM).
 Version: 0.1
 Date: 2014-11-12
 Author: Paul Rougieux
 Maintainer: Paul Rougieux <paul.rougieux@gmail.com>
-Description: The system converts raw GFPM output (text files .DAT) into dataframes.
-    So that you can avoid using Excel macros to display GFPM simulations. 
-    Based on the converted data, several reports can be generated in the form of html, 
-    pdf or Excel documents. It can be used to plot consumption, production and
-    trade volumes for more than 2 scenarios and to automate various calculations 
-    such as welfare and value added.
-License: GPL 3 
+Description: The system converts raw GFPM output (text files .DAT) into
+    dataframes. So that you can avoid using Excel macros to display GFPM
+    simulations. Based on the converted data, several reports can be generated in
+    the form of html, pdf or Excel documents. It can be used to plot consumption,
+    production and trade volumes for more than 2 scenarios and to automate various
+    calculations such as welfare and value added.
+License: GPL 3
 LazyData: true
+RoxygenNote: 5.0.1

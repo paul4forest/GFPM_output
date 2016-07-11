@@ -5,7 +5,12 @@ library(devtools)
 ################################################
 # Read country and product codes from 2 csv files (copied from World.xls)
 productCodes = read.csv("rawdata/GFPM product codes.csv", as.is=TRUE)
-countryCodes = read.csv("rawdata/GFPM country codes 4.csv", as.is=TRUE)
+countryCodes = read.csv("rawdata/GFPM country codes 4.csv", as.is=TRUE,
+                        fileEncoding =  "LATIN1")
+# Encoding issue with "C\xf4te d'Ivoire" fixed by using fileEncoding = "LATIN1"
+# iconvlist() provides a list of supported encodings
+countryCodes$Country[75]
+
 
 # Convert EU27 and Europe membership to logical values
 countryCodes$EU27 = as.logical(countryCodes$EU27)

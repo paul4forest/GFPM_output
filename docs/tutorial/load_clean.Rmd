@@ -17,9 +17,11 @@ Load the package
 library(GFPMoutput)
 ```
 
-### Import GFPM data the fast way
-This command loads and cleans GFPM data, saves it in ./enddata.
-GIve a scenario name of your choice.
+### Import GFPM data directly after a simulation
+This command loads GFPM data in the form of a list of
+data frames. It saves the list in R data format
+under the folder  ./enddata.
+Give a scenario name of your choice.
 ```{r load_and_clean, eval=FALSE}
 load_and_clean_gfpm_data(scenario_name = "your_scenario_name", 
                          pelps_folder = "C:/PELPS/pelps/") 
@@ -45,9 +47,12 @@ to read PELPS data tables.
 
 
 ### Copy GFPM data in c:\PELPS\pelps with a function
+If the GFPM simulation and R analysis run on two different computers,
+it can be convenient to load the data from a named folder 
+or archive. To this end, on the GFPM machine, 
 GFPM simulation results are stored in plain text
-format ".DAT" in the `C:\PELPS\pelps` folder. 
-After each scenario has run, we will copy this folder in an archive.
+format in ".DAT" files under the `C:\PELPS\pelps` folder. 
+After each scenario run, copy this folder into another folder or  archive. Copying the PELPS folder can also be done by hand if R is not installed on that machine. See section below. 
 
 In this example, we give the name "dummy" to the scenario
 ```{r eval=FALSE}
@@ -72,6 +77,9 @@ To use zip compression, follow the method "by hand"" below.
 
 Load a scenario in R and save it to .RDATA
 -----------------------------------------
+Beware that for compressed files, the internal folder in the 
+zip archive should have the same name as the zip archive itself.
+
 * Input: Raw PELPS text files (.DAT) stored in a folder or .zip archive
 * Output: Raw data.frames stored in a .RDATA file 
 

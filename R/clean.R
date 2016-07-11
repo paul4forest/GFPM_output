@@ -167,6 +167,8 @@ clean = function(fileName, scenario_name, path="rawdata/"){
 #' in one data frame. 
 #' Since scenario data is storred in a list of 4 data frames,
 #' this function does the job of binding each data frame in turn.
+#' To bind more than 2 scenarios, put them in a list and use 
+#' scenarios <- Reduce(bindScenarios, list(sc1, sc2, sc3))
 #' @param scenario1 scenario object created 
 #' by the \code{\link{clean}()} function or 
 #' by the \code{\link{load_and_clean_gfpm_data}()} functions

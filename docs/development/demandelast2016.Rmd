@@ -1,0 +1,394 @@
+---
+title: "Demand elasticities 2016"
+author: "Paul Rougieux"
+date: "26/01/2015"
+output: 
+  html_document: 
+    toc: yes
+---
+
+
+```{r packages, echo=FALSE, warning=FALSE, message=FALSE}
+library(knitr)
+opts_knit$set(root.dir="../..") # file paths are relative to the root of the project directory
+library(GFPMoutput)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+# Attention do not load the tradeflow package here,
+# It's clean function masks this one.
+
+selectedproducts <- c("Newsprint", "PWPaper",
+                      "OthPaper", "Sawnwood",
+                      "ParticleB", "FiberB")
+```
+
+# Blog
+
+* Before July first try two different base files
+ the default 2016 world file and base105 from previous
+ work with Joseph.
+* 20160706 try several ways to run the simulation
+  It seems there is an error after the first period
+  when the Excel files where modified in a French version of
+  Excel. I changed the region and Language settings to
+  English US.
+  GFPM also gives also an error when there are 
+  positive price elasticities. I decided to only export
+  those products which have negative price elasticities.
+  The issue is that simulation results are exactly the same.
+  
+
+# Load demand elasticities from the GFPM base scenario 
+```{r defaultelast}
+worlddemand <- read.csv("rawdata/World2016demand.csv", 
+                        stringsAsFactors = FALSE) %>%
+    left_join(countrycodes[c("Country_Code","Country")]) %>%
+    left_join(productcodes)
+
+worlddemand105 <- read.csv("rawdata/Worlddemand105.csv",
+                           stringsAsFactors = FALSE) %>%
+    left_join(countrycodes[c("Country_Code","Country")]) %>%
+    left_join(productcodes)
+
+# Country with zero elast
+worlddemand %>% filter(priceelast == 0)
+message("Dummy country zy can be ignored")
+
+# 
+elastsummmary <- worlddemand %>% 
+    filter(priceelast != 0) %>% 
+    select(Product, priceelast, gdpelast) %>%
+    distinct() 
+elastsummmary %>% kable()
+```
+
+## Show products that have more than one elasticity
+```{r duplicatedproduct}
+elastsummmary %>% filter(duplicated(Product)) %>% kable()
+```
+
+Show the group of countries which share a same elasticity 
+of fuelwood demand.
+```{r fuelwood}
+fwdgroup <- worlddemand %>% 
+    filter(Product == "Fuelwood" & !is.na(Country)) %>%
+    group_by(priceelast,gdpelast) %>%
+    summarise(Country = paste(Country,collapse=",")) 
+fwdgroup %>%  kable()
+```
+
+
+```{r plygroups}
+plygroup <- worlddemand %>%
+    filter(Product == "Plywood" & !is.na(Country)) %>%
+    group_by(priceelast, gdpelast) %>%
+    summarise(Country = paste(Country, collapse=","))
+plygroup %>% kable()
+```
+
+
+```{r newsgroup}
+newsgroup <- worlddemand %>%
+    filter(Product == "Newsprint" & !is.na(Country)) %>%
+    group_by(priceelast, gdpelast) %>%
+    summarise(Country = paste(Country, collapse=","))
+newsgroup %>% kable()
+```
+
+
+# Update the elasticities table for the World.xls of GFPM 
+Use elasticities from the pannel cointegration (PC) article .
+
+```{r load_dols_pmg_elast}
+productnames <- data_frame(Product = c("Newsprint", "PWPaper", "OthPaper", "Sawnwood", "ParticleB", "FiberB"),
+                           item = c("Newsprint", "PrintingandWritingPaper", "OtherPaperandPaperboard", 
+"SawnwoodConiferous", "ParticleBoard", "Fibreboard"))
+
+# GDP, Price as in the article's table
+elast <- read.csv("/home/paul/R/forestproductsdemand/data-end/elastforGFPM.csv", stringsAsFactors = FALSE) %>%
+    rename(gdpelastpc = lgdpreur,
+           priceelastpc = lpricereur) %>%
+    # Rename Items to GFPM Products 
+    left_join(productnames, by = "item")  %>%
+    select(-item)
+elast %>% kable()
+
+
+# Compare with elasticites currently in the GFPM
+elast %>% 
+    left_join(filter(elastsummmary, Product %in% elast$Product), by="Product") %>%
+    select(Product, estimator, gdpelast, gdpelastpc, priceelast, priceelastpc) %>%
+    kable()
+
+```
+
+
+```{r write_new_elast_4gfpm, eval=FALSE}
+# Chunk set to eval=FALSE because it's used only once before a simulation
+elast %>% filter(estimator == "dols") %>%
+    adddemandelast(worlddemand105) %>%
+    write.csv("rawdata/World105demanddols.csv")
+elast %>% filter(estimator == "pmg") %>%
+    adddemandelast(worlddemand105) %>%
+    write.csv("rawdata/World105demandpmg.csv")
+elast %>% filter(estimator == "dols") %>%
+        adddemandelast(worlddemand) %>%
+    write.csv("rawdata/World2016demanddols.csv")
+elast %>% filter(estimator == "pmg") %>%
+        adddemandelast(worlddemand) %>%
+    write.csv("rawdata/World2016demandpmg.csv")
+
+if(FALSE){
+    # Only Sawnwood
+    message("DOLS::Newsprint and Sawnwood have a positive price elasticity")
+    message("PMG::Newsprint has a positive price elasticity")
+    
+    # DOLS elast withou Newsprint withing sawnwood
+    elast %>%
+        filter(estimator == "dols" & 
+                   ! Product %in% c("Newsprint","Sawnwood")) %>%
+        adddemandelast(worlddemand) %>%
+        write.csv("rawdata/World2016demandnonewsnoswd.csv")
+    
+    # Only particle board
+    elast %>% filter(estimator == "dols" & 
+                         Product == "ParticleB") %>%
+        adddemandelast(worlddemand) %>%
+        write.csv("rawdata/World2016demanddolsParticleB.csv")
+    
+    # Only Othpaper
+    elast %>% filter(estimator == "dols" & 
+                         Product == "OthPaper") %>%
+        adddemandelast(worlddemand) %>%
+        write.csv("rawdata/World2016demanddolsOthPaper.csv")
+    
+    # Pmg elast without newsprint, 
+    # Avoid newsprint because it's positive price elasticity
+    # seems to be creating an error
+    elast %>% filter(estimator == "pmg" & 
+                         Product != "Newsprint") %>%
+        adddemandelast(worlddemand) %>%
+        write.csv("rawdata/World2016demandpmgnonews.csv")
+    
+    
+}
+
+
+if (FALSE){
+    pcelast <- elast %>% filter(estimator == "dols")
+    # Develop the adddemandelast function
+    worlddemand2 <- worlddemand %>%
+        left_join(pcelast, by="Product")
+    # Replace those that have a new elasticity by the new value
+    worlddemand2 <- worlddemand2 %>%
+        filter(!is.na(gdpelastpc)) %>%
+        mutate(gdpelast = gdpelastpc,
+               priceelast = priceelastpc) %>%
+        # Add back those that didn't have a new elasticity
+        rbind(filter(worlddemand2,is.na(gdpelastpc))) %>%
+        arrange(Country_Code, Product_Code)
+    # Did the number of rows stay the same?
+    stopifnot(identical(nrow(worlddemand),nrow(worlddemand2)))
+    # Did the order of rows stay the same?
+    stopifnot(identical(worlddemand[c("Country_Code","Product_Code","basedemand")],worlddemand2[c("Country_Code","Product_Code","basedemand")]))
+    write.csv(worlddemand2, "rawdata/World2016demandPC.csv",
+              row.names = FALSE)
+    worlddemand2016dols <- elast %>% 
+        filter(estimator == "dols") %>%
+        adddemandelast(worlddemand)
+
+}
+
+
+```
+
+
+## GFPM issues
+### Positive price elasticities
+Positive price elasticities cause the GFPM simulation to break after the first optimisation round. 
+
+* The simulation breaks when I use all PMG estimates including newsprint elasticitity of demand.
+* The simulation runs find when I use PMG estimates excluding newsprint elasticity of demand
+* Similar issue for DOLS estimatesof the newsprint and sawnwood elasticity of demand. 
+
+Therefore I used only negative price elasticities.
+Price elasticities should be negative according to the theory.
+
+
+### Remove Exogchange elasticities changes  
+
+Joseph Buongiorno:
+
+> The reason for the small difference that you got is that in the world file that you used, the elasticities changed over time.  This is reflected in the ExogChange file where the elasticities differ in each period.  It looks like you have not changed that.  So, the results reflect only the effect of a change in elasticity in the first period, which is small. I suggest changing the elasticities in all periods in ExogChange so that they are the same as in the first period and equal to your revised elasticities.
+
+
+I removed GDP and price elasticity from exogenous change.
+By setting the GDP elasticity (column R) to 0 with a double click.
+Double click copies a full column down untill the next 
+empty cell. 
+Then I copied this column of 0 to the price elasticity (column H).
+Otherwise a double click on the price elastcitity section 
+would errase all content from column H, for all data types.
+WHich is not what I  want. I wand to modify the D data types only.
+
+## Excel issues
+Because I use a French/ English version of excel
+I had to change dots to commas in the file. 
+I swidched windows regional and language settings to US so that 
+I don't have to do this commas / dot replacement each time I load a csv file. 
+
+
+Then here is how to send updated elasticities to GFPM:
+
+* open this csv in Excel, convert the text to columns if
+necessary using comma as a separator.
+* paste the priceelast and gdpelast columns in the 
+World.xls table
+* replace points by commas because we are dealing with
+a french version of excel 
+(Side note: commas are incompatible with csv, they would require every field to be quoted. Now I understand why read.csv2 accepts text separated by semi-colons)
+
+Then run the simulation as an alternative scenario 
+and go back to this document
+to load both the base and alternative scenarios below.
+
+
+
+# Load simulation data
+I copied the file to an archive called "pelpsbase2016" 
+under `./rawdata`.
+This needs to be evaluated only once. 
+Once data has been processed and storred in enddata.
+It can be read from there. 
+```{r pelps_to_rdata, eval=FALSE}
+message("Chunk set to eval=FALSE as it needs to be evaluated only once to load data from GFPM after a simulation.")
+savePELPSToRdata("pelpsbase2016", compressed = "zip")
+savePELPSToRdata("pelpspc2016", compressed = "zip")
+savePELPSToRdata("pelpslow2016", compressed = "zip")
+base2016 <- clean("pelpsbase2016.RDATA","base2016")
+pc <- clean("pelpspc2016.RDATA","pc2016")
+low <- clean("pelpslow2016.RDATA","low2016")
+
+# Write to endata 
+message("Use bindScenarios() to combine scenarios ",
+        "in one list, then write the two scenarios in one rds file.")
+scenarios <- Reduce(bindScenarios,
+                    list(base, pc, low))
+saveRDS(scenarios, "enddata/baseandpc2016.rds")
+
+
+# base105 scenarios
+savePELPSToRdata("base105low", compressed = "zip")
+savePELPSToRdata("base105high", compressed = "zip")
+base105low <- clean("base105low.RDATA","base105low")
+base105high <- clean("base105high.RDATA","base105high")
+base105scenarios <- bindScenarios(base105low, base105high)
+
+# Other experimental scenarios
+savePELPSToRdata("pelps2016dolsOthPaper", compressed = "zip")
+savePELPSToRdata("pelps2016pmgnonews", compressed = "zip")
+savePELPSToRdata("pelps2016noexchg", compressed = "zip")
+dolsopap <- clean("pelps2016dolsOthPaper.RDATA", "dolsopap")
+pmgnonews <- clean("pelps2016pmgnonews.RDATA", "pmgnonews")
+base2016noexchg <- clean("pelps2016noexchg.RDATA", "base2016noexchg")
+
+scenarios <- Reduce(bindScenarios,
+                    list(base2016, base2016noexchg, 
+                         dolsopap, pmgnonews))
+message("Write the list of scenarios in a rds file if you want to reuse them")
+```
+
+
+```{r load_simulation_data}
+scenarios <- readRDS("enddata/baseandpc2016.rds")
+
+if(FALSE){
+    # Load TTIP high and low scenarios to compare
+    load("enddata/GFPM_Output_TTIP_with_sensitivity.RDATA")
+    scenarios <- allScenarios
+    # Load the re-rerun version of these scenarios 
+    scenarios <- base105scenarios
+}
+```
+
+
+# Plot consumption
+```{r plotcons}
+# Plot demand for all products
+ggplot(data = filter(scenarios$aggregates,
+                     Element == "Demand")) +
+    aes(x = Period, y = Volume,  colour = GFPM_REG, linetype = Scenario) +
+    geom_line() + ggtitle("Demand") +
+    theme(legend.position = "bottom") + facet_wrap(~Product, scales="free_y")
+
+# Plot demand for selected products only
+selectedproducts4plot <- selectedproducts
+# selectedproducts4plot <- "OthPaper"
+ggplot(data = filter(scenarios$aggregates,
+                     Element == "Demand" & 
+                         Product %in% selectedproducts4plot)) +
+    aes(x = Period, y = Volume, 
+        colour = GFPM_REG, linetype = Scenario) +
+    geom_line() + ggtitle("Demand") +
+    theme(legend.position = "bottom") + 
+    facet_wrap(~Product, scales="free_y")
+```
+
+
+## Differences between base and pc scenarios
+```{r diffbasepc, eval=FALSE}
+# Are values exactly the same?
+scendiff <- scenarios$entity %>% 
+    spread(Scenario,Volume) %>% 
+    mutate(diffpc = pc2016 - base2016,
+           difflow = low2016 - base2016) %>%
+    arrange(difflow)
+
+# head(scendiff,100)
+# tail(scendiff,100)
+
+ggplot(data = filter(scendiff, GFPM_REG == "Europe",
+                     Element == "Demand")) +
+    aes(x = Period, y = diff, colour = Country) +
+    geom_line() + ggtitle("Demand") +
+    theme(legend.position = "bottom") + facet_wrap(~Product, scales="free_y")
+
+# Aggregated differences by region 
+scendiffagg <- scenarios$aggregates %>% 
+    spread(Scenario, Volume) %>%
+    mutate(diff = pc2016 - base2016,
+           diffpercent = diff / base2016)
+# scendiffagg %>% arrange(diff)  %>% tail()
+
+# Difference in the 5th period  product by region
+scendiffagg %>% 
+    filter(Period == 5 & 
+               Product %in% selectedproducts &
+               Element == "Demand") %>%
+    select(Product, Element,  GFPM_REG, diff) %>%
+    spread(GFPM_REG, diff)  %>%
+    kable()
+
+# Same in percent
+scendiffagg %>% 
+    filter(Period == 5 & 
+               Product %in% selectedproducts &
+               Element == "Demand") %>%
+    mutate(diffpercent = diffpercent * 100) %>%
+    select(Product, Element,  GFPM_REG, diffpercent) %>%
+    spread(GFPM_REG, diffpercent)  %>%
+    kable()
+
+
+
+# Plot
+ggplot(data = filter(scendiffagg,
+                     Element == "Demand")) +
+    aes(x = Period, y = diff, colour = GFPM_REG) +
+    geom_line() + ggtitle("Demand") +
+    theme(legend.position = "bottom") + facet_wrap(~Product, scales="free_y")
+
+```
+
+

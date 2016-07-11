@@ -1,0 +1,26 @@
+---
+title: "Foreset Area"
+author: "Paul Rougieux"
+date: "15 June 2016"
+output: html_document
+---
+
+```{r packages, echo=FALSE, warning=FALSE, message=FALSE}
+library(knitr)
+opts_knit$set(root.dir="../..") # file paths are relative to the root of the project directory
+library(GFPMoutput)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+```
+
+```{r loaddata}
+forarea <- read.csv("rawdata/forestarea.csv", stringsAsFactors = FALSE) %>%
+        left_join(countrycodes[c("Country_Code","Country", "EU27")], 
+                  by = "Country_Code") %>%
+    filter(EU27) %>%
+    arrange(desc(forestarea))
+
+forarea %>% head()
+```
+
