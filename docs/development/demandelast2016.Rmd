@@ -61,6 +61,9 @@ elastsummmary <- worlddemand %>%
     select(Product, priceelast, gdpelast) %>%
     distinct() 
 elastsummmary %>% kable()
+elastsummmary %>% 
+    filter(Product %in% selectedproducts & priceelast !=-0.25)  %>%
+    dput()
 ```
 
 ## Show products that have more than one elasticity
@@ -101,9 +104,10 @@ newsgroup %>% kable()
 Use elasticities from the pannel cointegration (PC) article .
 
 ```{r load_dols_pmg_elast}
-productnames <- data_frame(Product = c("Newsprint", "PWPaper", "OthPaper", "Sawnwood", "ParticleB", "FiberB"),
+productnames <- data_frame(Product = c("Newsprint", "PWPaper", "OthPaper", "Sawnwood", "ParticleB", "FiberB", "Plywood"),
                            item = c("Newsprint", "PrintingandWritingPaper", "OtherPaperandPaperboard", 
-"SawnwoodConiferous", "ParticleBoard", "Fibreboard"))
+"SawnwoodConiferous", "ParticleBoard", "Fibreboard", "Plywood")) %>%
+    mutate(item = factor(item, levels = item, ordered = TRUE))
 
 # GDP, Price as in the article's table
 elast <- read.csv("/home/paul/R/forestproductsdemand/data-end/elastforGFPM.csv", stringsAsFactors = FALSE) %>%
@@ -114,6 +118,9 @@ elast <- read.csv("/home/paul/R/forestproductsdemand/data-end/elastforGFPM.csv",
     select(-item)
 elast %>% kable()
 
+# Simangunsong product name missing before sawnwood
+# not important Total swd and total panel not useful anyway
+# Only plywood would be interesting.
 
 # Compare with elasticites currently in the GFPM
 elast %>% 
@@ -139,12 +146,16 @@ elast %>% filter(estimator == "pmg") %>%
         adddemandelast(worlddemand) %>%
     write.csv("rawdata/World2016demandpmg.csv")
 
+elast %>% filter(estimator == "simangunsong") %>%
+    adddemandelast(worlddemand) %>%
+    write.csv("rawdata/World2016demandsimangunsong.csv")
+
 if(FALSE){
     # Only Sawnwood
     message("DOLS::Newsprint and Sawnwood have a positive price elasticity")
     message("PMG::Newsprint has a positive price elasticity")
     
-    # DOLS elast withou Newsprint withing sawnwood
+    # DOLS elast without Newsprint without sawnwood
     elast %>%
         filter(estimator == "dols" & 
                    ! Product %in% c("Newsprint","Sawnwood")) %>%
@@ -286,109 +297,222 @@ base105high <- clean("base105high.RDATA","base105high")
 base105scenarios <- bindScenarios(base105low, base105high)
 
 # Other experimental scenarios
-savePELPSToRdata("pelps2016dolsOthPaper", compressed = "zip")
-savePELPSToRdata("pelps2016pmgnonews", compressed = "zip")
 savePELPSToRdata("pelps2016noexchg", compressed = "zip")
-dolsopap <- clean("pelps2016dolsOthPaper.RDATA", "dolsopap")
-pmgnonews <- clean("pelps2016pmgnonews.RDATA", "pmgnonews")
+savePELPSToRdata("pelps2016pmgnonews", compressed = "zip")
+savePELPSToRdata("pelps2016dolsnonewsnoswd", compressed = "zip")
+savePELPSToRdata("pelps2016simangunsong", compressed = "zip")
 base2016noexchg <- clean("pelps2016noexchg.RDATA", "base2016noexchg")
-
+pmgnonews <- clean("pelps2016pmgnonews.RDATA", "pmgnonews")
+dolsnonewsnoswd <- clean("pelps2016dolsnonewsnoswd.RDATA",
+                         "dolsnonewsnoswd")
+simangunsong <- clean("pelps2016simangunsong.RDATA", "simangunsong")
+message("Add  or remove scenarios from this list for
+        future storage and visualisation as needed.")
 scenarios <- Reduce(bindScenarios,
-                    list(base2016, base2016noexchg, 
-                         dolsopap, pmgnonews))
-message("Write the list of scenarios in a rds file if you want to reuse them")
+                    list(base2016noexchg, pmgnonews,
+                         dolsnonewsnoswd, simangunsong))
+# Write scenarios to a rds file for later use 
+saveRDS(scenarios, "enddata/base_dols_pmg2016.rds")
+
 ```
 
 
 ```{r load_simulation_data}
-scenarios <- readRDS("enddata/baseandpc2016.rds")
+scenarios <- readRDS("enddata/base_dols_pmg2016.rds")
+# scenarios <- readRDS("enddata/baseandpc2016.rds")
 
 if(FALSE){
     # Load TTIP high and low scenarios to compare
     load("enddata/GFPM_Output_TTIP_with_sensitivity.RDATA")
     scenarios <- allScenarios
-    # Load the re-rerun version of these scenarios 
+    # Load the re-run version of these scenarios 
     scenarios <- base105scenarios
 }
 ```
 
-
-# Plot consumption
+# GFPM simulation results
+## Plot consumption
 ```{r plotcons}
 # Plot demand for all products
-ggplot(data = filter(scenarios$aggregates,
-                     Element == "Demand")) +
-    aes(x = Period, y = Volume,  colour = GFPM_REG, linetype = Scenario) +
-    geom_line() + ggtitle("Demand") +
-    theme(legend.position = "bottom") + facet_wrap(~Product, scales="free_y")
+p <- ggplot(data = NULL) +
+    aes(x = Period, y = Volume,  
+        colour = GFPM_REG, linetype = Scenario) +
+    ggtitle("Demand") +
+    facet_wrap(~Product, scales="free_y") +
+    theme(legend.position = "bottom") 
+
+p + geom_line(data = filter(scenarios$aggregates,
+                     Element == "Demand"))
 
 # Plot demand for selected products only
 selectedproducts4plot <- selectedproducts
 # selectedproducts4plot <- "OthPaper"
-ggplot(data = filter(scenarios$aggregates,
+p + geom_line(data = filter(scenarios$aggregates,
                      Element == "Demand" & 
-                         Product %in% selectedproducts4plot)) +
-    aes(x = Period, y = Volume, 
-        colour = GFPM_REG, linetype = Scenario) +
-    geom_line() + ggtitle("Demand") +
-    theme(legend.position = "bottom") + 
-    facet_wrap(~Product, scales="free_y")
+                         Product %in% selectedproducts4plot)) 
+
+# Europe only
+scenarios$aggregates %>%
+    filter(Element == "Demand" & 
+               GFPM_REG == "Europe" & 
+               Product %in%
+               selectedproducts4plot) %>%
+    mutate(Year = Period * 5 + 2012) %>%
+    ggplot() +
+    aes(x = Year, y = Volume/1e3,  
+        color = Scenario, linetype = Scenario) +
+    # ggtitle("GFPM Demand scenarios for Europe") +
+    ylab("Volume in million T or m3") +
+    facet_wrap(~Product, scales="free_y") +
+    theme(legend.position = "bottom") +
+    geom_line(data = ) +
+    ylim(0,NA)
+
+
+# # Europe only without Simangunsong
+# p + geom_line(data = filter(scenarios$aggregates,
+#                             Element == "Demand" & 
+#                                 GFPM_REG == "Europe" & 
+#                                 Product %in%
+#                                 selectedproducts4plot & 
+#                                 Scenario != "simangunsong"),
+#               mapping = aes(color = Scenario)) +
+#     ylim(0,NA)
+# 
+```
+
+```{r plotconsEU}
+EUcountries <- filter(countrycodes,EU27)$Country 
+eugfpm <- scenarios$entity %>%
+    filter(Country %in% EUcountries & Element == "Demand" & 
+               Product %in% selectedproducts) %>%
+    # Rename Scenarios so that they match the elasticities table in the article
+    rename(Scenario2replace = Scenario) %>%
+    left_join(data_frame(Scenario2replace = c("base2016noexchg", "dolsnonewsnoswd",
+                                  "pmgnonews", "simangunsong"),
+                     Scenario = c("Buongiorno 2015", "DOLS", "PMG", "Simangunsong 2001")),
+             by="Scenario2replace") %>% 
+    # Rename Items so that they matche the elasticities table 
+    left_join(productnames, by = "Product") %>%
+    group_by(Scenario, item, Period) %>%
+    summarise(Volume = sum(Volume)) %>%
+    mutate(Year = (Period-1) * 5 + 2012)
+
+eugfpm %>%
+    ggplot() +
+    aes(x = Year, y = Volume/1e3,  
+        color = Scenario, linetype = Scenario) +
+    # ggtitle("GFPM Demand scenarios for Europe") +
+    ylab(expression(paste("Volume in million ", m^{3},"| Volume in million T"))) +
+    facet_wrap(~item, scales="free_y") +
+    theme(legend.position = "bottom") +
+    geom_line(data = ) +
+    ylim(0,NA)
+
 ```
 
 
-## Differences between base and pc scenarios
-```{r diffbasepc, eval=FALSE}
+```{r plotconsallcountries}
+p <- ggplot(data = NULL) +
+    aes(x = Period, y = Volume,  
+        colour = Country, linetype = Scenario) +
+    ggtitle("Demand") +
+    facet_wrap(~Product, scales="free_y") +
+    theme(legend.position = "bottom") 
+p + geom_line(data=filter(scenarios$entity,
+                          Element == "Demand" & 
+                                GFPM_REG == "Europe" & 
+                                Product %in%
+                                selectedproducts4plot))
+```
+
+
+## Differences between base, DOLS and PMG  scenarios
+```{r diffbasepc, eval=TRUE}
 # Are values exactly the same?
 scendiff <- scenarios$entity %>% 
     spread(Scenario,Volume) %>% 
-    mutate(diffpc = pc2016 - base2016,
-           difflow = low2016 - base2016) %>%
-    arrange(difflow)
+    mutate(diffdols = base2016noexchg - dolsnonewsnoswd,
+           diffpmg = base2016noexchg - pmgnonews) %>%
+    arrange(diffdols)
 
 # head(scendiff,100)
 # tail(scendiff,100)
 
-ggplot(data = filter(scendiff, GFPM_REG == "Europe",
+ggplot(data = filter(scendiff, 
+                     Country %in% c("France", "Germany",
+                                    "United Kingdom"),
                      Element == "Demand")) +
-    aes(x = Period, y = diff, colour = Country) +
-    geom_line() + ggtitle("Demand") +
-    theme(legend.position = "bottom") + facet_wrap(~Product, scales="free_y")
+    geom_line(mapping = aes(x = Period, y = diffdols, colour = Country, linetype = "dols")) + 
+    geom_line(mapping = aes(x = Period, y = diffpmg, colour = Country, linetype = "pmg")) + 
+    ggtitle("Demand") + 
+    ylab("Difference with the base scenario") +
+    theme(legend.position = "bottom") + 
+    facet_wrap(~Product, scales="free_y")
 
 # Aggregated differences by region 
 scendiffagg <- scenarios$aggregates %>% 
     spread(Scenario, Volume) %>%
-    mutate(diff = pc2016 - base2016,
-           diffpercent = diff / base2016)
+    mutate(diffdols = base2016noexchg - dolsnonewsnoswd,
+           diffdolspercent =  round(diffdols / base2016noexchg*100),
+           diffpmg = base2016noexchg - pmgnonews,
+           diffpmgpercent = round(diffpmg / base2016noexchg*100)) 
+
 # scendiffagg %>% arrange(diff)  %>% tail()
 
-# Difference in the 5th period  product by region
+# Difference in the 5th period by product by region
 scendiffagg %>% 
     filter(Period == 5 & 
                Product %in% selectedproducts &
-               Element == "Demand") %>%
-    select(Product, Element,  GFPM_REG, diff) %>%
-    spread(GFPM_REG, diff)  %>%
+               Element == "Demand") 
+# # Same in percent
+# scendiffagg %>% 
+#     filter(Period == 5 & 
+#                Product %in% selectedproducts &
+#                Element == "Demand") 
+scendiffagg %>%
+    filter(Element == "Demand" & 
+               Period ==5 & 
+               GFPM_REG == "Europe") %>%
+    select(Product, starts_with("diff")) %>%
     kable()
-
-# Same in percent
-scendiffagg %>% 
-    filter(Period == 5 & 
-               Product %in% selectedproducts &
-               Element == "Demand") %>%
-    mutate(diffpercent = diffpercent * 100) %>%
-    select(Product, Element,  GFPM_REG, diffpercent) %>%
-    spread(GFPM_REG, diffpercent)  %>%
-    kable()
-
-
 
 # Plot
 ggplot(data = filter(scendiffagg,
                      Element == "Demand")) +
-    aes(x = Period, y = diff, colour = GFPM_REG) +
-    geom_line() + ggtitle("Demand") +
+    aes(x = Period, colour = GFPM_REG) +
+    geom_line(aes(y = diffdols, linetype = "dols")) + 
+    geom_line(aes(y = diffpmg, linetype = "pmg")) + 
+    ggtitle("Demand") +
     theme(legend.position = "bottom") + facet_wrap(~Product, scales="free_y")
-
 ```
 
+
+## Consumption table
+Change in consumption in the EU in period 5
+```{r consumptiontable2032}
+EUcountries <- filter(countrycodes,EU27)$Country 
+eu2032 <- scenarios$entity %>%
+    filter(Country %in% EUcountries & 
+               Period == 5 & 
+               Element == "Demand") %>% 
+    group_by(Product, Scenario) %>%
+    summarise(Volume = round(sum(Volume)/1e3,3)) %>%
+    spread(Scenario, Volume) %>%
+    left_join(productnames, by="Product") %>%
+    filter(!is.na(item)) %>%
+    # Arrange items in the usual order
+    # mutate(item = factor(item, levels = productnames$item, ordered = TRUE)) %>%
+    ungroup() %>%
+    arrange(item) %>%
+    select(item, 2:5) 
+eu2032 %>%
+    kable()
+eu2032 %>%
+    mutate(diffdols = (dolsnonewsnoswd - base2016noexchg)/base2016noexchg,
+           diffpmg = (pmgnonews -base2016noexchg)/base2016noexchg,
+           sdiffdols = (dolsnonewsnoswd - simangunsong)/simangunsong,
+           sdiffpmg = (pmgnonews -simangunsong)/simangunsong) %>%
+    select(item, 6:9)
+```
 
