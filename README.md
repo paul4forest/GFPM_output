@@ -181,3 +181,9 @@ October-November 2014:
 October-November 2014
 * make load clean create the rawdata and enddata folders correctly
 * update tutorial and installations instructions
+
+October 2015
+* Tutorial on how to clean and load data
+
+July 2016
+* Bulk update demand elasticities for GFPM scenarios
