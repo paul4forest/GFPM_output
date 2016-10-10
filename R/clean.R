@@ -27,7 +27,10 @@
 
 
 
-# Split trade in 2 dataframes for import and export #
+#' Split trade in 2 dataframes for import and export #
+#' @param P data frame of pelps data
+#' @return a list of data frames
+#' @export 
 splittrade = function(P){
     # Find import region and remove zz from the code
     P$import = P$trade[substr(P$trade$V1, 2, 3) == "zz",]
@@ -45,7 +48,10 @@ splittrade = function(P){
 }
 
 
-# Reshape PELPS tables and extract code in a truly Long format #
+#' Reshape PELPS tables and extract code in a truly Long format #
+#' @param df.PELPS 
+#' @param elementName
+#' @export 
 reshapeLong = function(df.PELPS, elementName=""){
     df.PELPS = reshape(df.PELPS, 
                        idvar=c("V1"), varying=list(names(df.PELPS[-1])), 
@@ -58,7 +64,10 @@ reshapeLong = function(df.PELPS, elementName=""){
 }
 
 
-# Add products, country and regions names #
+#' Add products, country and regions names 
+#' @param df data frame
+#' @return a data frame with products, country and regions names added
+#' @export
 addProductAndCountry = function(df){
     # Extract region and Product codes from code
     df$Country_Code = substr(df$Code, 1, 2)

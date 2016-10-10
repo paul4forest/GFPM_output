@@ -122,8 +122,8 @@ trainingscenarios$entity %>% group_by(Element) %>%
 
 |Element    |Products                                                                                                                           |
 |:----------|:----------------------------------------------------------------------------------------------------------------------------------|
-|DPrice     |Fuelwood, OthIndRound, Sawnwood, Plywood, ParticleB, FiberB, MechPlp, ChemPlp, WastePaper, Newsprint, PWPaper, OthPaper, OthFbrPlp |
 |Demand     |Fuelwood, OthIndRound, Sawnwood, Plywood, ParticleB, FiberB, MechPlp, ChemPlp, WastePaper, Newsprint, PWPaper, OthPaper, OthFbrPlp |
+|DPrice     |Fuelwood, OthIndRound, Sawnwood, Plywood, ParticleB, FiberB, MechPlp, ChemPlp, WastePaper, Newsprint, PWPaper, OthPaper, OthFbrPlp |
 |Export     |Fuelwood, IndRound, Sawnwood, Plywood, ParticleB, FiberB, MechPlp, ChemPlp, OthFbrPlp, WastePaper, Newsprint, PWPaper, OthPaper    |
 |Import     |Fuelwood, IndRound, Sawnwood, Plywood, ParticleB, FiberB, MechPlp, ChemPlp, OthFbrPlp, WastePaper, Newsprint, PWPaper, OthPaper    |
 |Production |Sawnwood, Plywood, ParticleB, FiberB, MechPlp, ChemPlp, Newsprint, PWPaper, OthPaper                                               |
@@ -148,14 +148,14 @@ Afghanistan, Albania, Algeria, Angola, Argentina, Armenia, Australia, Austria, A
 plotprodbyreg(trainingscenarios, "Sawnwood", "Base")
 ```
 
-![](explore_files/figure-html/sawnwood_base-1.png) 
+![](explore_files/figure-html/sawnwood_base-1.png)<!-- -->
 
 
 ```r
 plotprodbyreg(trainingscenarios, "IndRound", "Base")
 ```
 
-![](explore_files/figure-html/roundwood_base-1.png) 
+![](explore_files/figure-html/roundwood_base-1.png)<!-- -->
 
 
 ## Plot by country 
@@ -166,7 +166,7 @@ plotprodbycounty(trainingscenarios, "Sawnwood", "Base",
                  c("France", "Germany"))
 ```
 
-![](explore_files/figure-html/countryplotbase-1.png) 
+![](explore_files/figure-html/countryplotbase-1.png)<!-- -->
 
 The above function generates a plot based on the given arguments.
 For greater flexibility you are encouraged to read about 
@@ -191,7 +191,7 @@ ggplot(data=usademand) +
     facet_grid(~ Element) 
 ```
 
-![](explore_files/figure-html/countryplotbaseallproducts-1.png) 
+![](explore_files/figure-html/countryplotbaseallproducts-1.png)<!-- -->
 Example of a description for this graph. 
 The base scenario simulated 
 a decrease in particle board production 
@@ -211,7 +211,7 @@ ggplot(data = sawnwood) +
     theme(legend.position = "bottom")
 ```
 
-![](explore_files/figure-html/sawnwood_demand-1.png) 
+![](explore_files/figure-html/sawnwood_demand-1.png)<!-- -->
 
 Compare for all products
 
@@ -224,5 +224,5 @@ ggplot(data = paperproducts) +
     theme(legend.position = "bottom") + facet_wrap(~Product, scales="free_y")
 ```
 
-![](explore_files/figure-html/compare_demand_scenarios-1.png) 
+![](explore_files/figure-html/compare_demand_scenarios-1.png)<!-- -->
 

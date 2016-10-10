@@ -8,18 +8,21 @@ Load the package
 library(GFPMoutput)
 ```
 
-### Import GFPM data the fast way
-This command loads and cleans GFPM data, saves it in ./enddata:
+### Import GFPM data directly after a simulation
+This command loads GFPM data in the form of a list of
+data frames. It saves the list in R data format
+under the folder  ./enddata.
+Give a scenario name of your choice.
 
 ```r
 load_and_clean_gfpm_data(scenario_name = "your_scenario_name", 
-                         pelps_folder = "C:/PELPS/pelps/") # Give it a scenario name of your choice
-load_and_clean_gfpm_data(scenario_name = "your_scenario_name",
-                         compression="bzip2") # Give it a scenario name of your choice
+                         pelps_folder = "C:/PELPS/pelps/") 
 
 # The cleaned data can be loaded with 
 load("enddata/your_scenario_name.RDATA")
 # It has the form of a large list containing several data frames
+# You can see the begining of each data frame with the command
+lapply(scenario,head)
 ```
 If you are not interested in the internal workings of load.R and clean.R, 
 and if you only want to analyse results from one scenario,
@@ -31,9 +34,12 @@ to read PELPS data tables.
 
 
 ### Copy GFPM data in c:\PELPS\pelps with a function
+If the GFPM simulation and R analysis run on two different computers,
+it can be convenient to load the data from a named folder 
+or archive. To this end, on the GFPM machine, 
 GFPM simulation results are stored in plain text
-format ".DAT" in the `C:\PELPS\pelps` folder. 
-After each scenario has run, we will copy this folder in an archive.
+format in ".DAT" files under the `C:\PELPS\pelps` folder. 
+After each scenario run, copy this folder into another folder or  archive. Copying the PELPS folder can also be done by hand if R is not installed on that machine. See section below. 
 
 In this example, we give the name "dummy" to the scenario
 
@@ -60,6 +66,9 @@ To use zip compression, follow the method "by hand"" below.
 
 Load a scenario in R and save it to .RDATA
 -----------------------------------------
+Beware that for compressed files, the internal folder in the 
+zip archive should have the same name as the zip archive itself.
+
 * Input: Raw PELPS text files (.DAT) stored in a folder or .zip archive
 * Output: Raw data.frames stored in a .RDATA file 
 
@@ -89,11 +98,25 @@ list.files("rawdata", ".zip", full.names = TRUE)
 ```
 
 ```
-## [1] "rawdata/PELPS 105Base.zip"                          
-## [2] "rawdata/PELPS 105 TFTA High Scenario revision 1.zip"
-## [3] "rawdata/PELPS 105 TFTA Low scenario revision 1.zip" 
-## [4] "rawdata/World105LowGDPelast.zip"                    
-## [5] "rawdata/World105NoTTIPHighGDPelast.zip"
+##  [1] "rawdata/base105high.zip"                            
+##  [2] "rawdata/base105low.zip"                             
+##  [3] "rawdata/fontleroy_brown.zip"                        
+##  [4] "rawdata/PELPS 105Base.zip"                          
+##  [5] "rawdata/PELPS 105 TFTA High Scenario revision 1.zip"
+##  [6] "rawdata/PELPS 105 TFTA Low scenario revision 1.zip" 
+##  [7] "rawdata/pelps105.zip"                               
+##  [8] "rawdata/pelps2016dolsnonewsnoswd.zip"               
+##  [9] "rawdata/pelps2016dolsOthPaper.zip"                  
+## [10] "rawdata/pelps2016noexchg.zip"                       
+## [11] "rawdata/pelps2016pmgnonews.zip"                     
+## [12] "rawdata/pelps2016simangunsong.zip"                  
+## [13] "rawdata/pelpsbase2016_backup.zip"                   
+## [14] "rawdata/pelpsbase2016old.zip"                       
+## [15] "rawdata/pelpsbase2016.zip"                          
+## [16] "rawdata/pelpslow2016.zip"                           
+## [17] "rawdata/pelpspc2016.zip"                            
+## [18] "rawdata/World105LowGDPelast.zip"                    
+## [19] "rawdata/World105NoTTIPHighGDPelast.zip"
 ```
 
 
@@ -104,15 +127,24 @@ list.files("rawdata", ".RDATA", full.names = TRUE)
 ```
 
 ```
-## [1] "rawdata/base.RDATA"                                   
-## [2] "rawdata/bli.RDATA"                                    
-## [3] "rawdata/GFPMcodes.RDATA"                              
-## [4] "rawdata/PELPS 105Base.RDATA"                          
-## [5] "rawdata/PELPS 105 TFTA High Scenario revision 1.RDATA"
-## [6] "rawdata/PELPS 105 TFTA Low scenario revision 1.RDATA" 
-## [7] "rawdata/PELPS October 2014 Ahmed.RDATA"               
-## [8] "rawdata/World105LowGDPelast.RDATA"                    
-## [9] "rawdata/World105NoTTIPHighGDPelast.RDATA"
+##  [1] "rawdata/base105high.RDATA"                            
+##  [2] "rawdata/base105low.RDATA"                             
+##  [3] "rawdata/base.RDATA"                                   
+##  [4] "rawdata/GFPMcodes.RDATA"                              
+##  [5] "rawdata/PELPS 105Base.RDATA"                          
+##  [6] "rawdata/PELPS 105 TFTA High Scenario revision 1.RDATA"
+##  [7] "rawdata/PELPS 105 TFTA Low scenario revision 1.RDATA" 
+##  [8] "rawdata/pelps2016dolsnonewsnoswd.RDATA"               
+##  [9] "rawdata/pelps2016dolsOthPaper.RDATA"                  
+## [10] "rawdata/pelps2016noexchg.RDATA"                       
+## [11] "rawdata/pelps2016pmgnonews.RDATA"                     
+## [12] "rawdata/pelps2016simangunsong.RDATA"                  
+## [13] "rawdata/pelpsbase2016.RDATA"                          
+## [14] "rawdata/pelpslow2016.RDATA"                           
+## [15] "rawdata/PELPS October 2014 Ahmed.RDATA"               
+## [16] "rawdata/pelpspc2016.RDATA"                            
+## [17] "rawdata/World105LowGDPelast.RDATA"                    
+## [18] "rawdata/World105NoTTIPHighGDPelast.RDATA"
 ```
 
 Clean a scenario
