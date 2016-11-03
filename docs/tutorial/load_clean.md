@@ -1,5 +1,13 @@
-Tutorial explaining how to load and clean GFPM data
-===================================
+# Loading GFPM data into R and preparing for analysis
+
+
+This tutorial explains how to load GFPM data into R.
+And how to prepare the data for further analysis. 
+GFPM simulation results are stored in plain text
+format in ".DAT" files under the `C:\PELPS\pelps` folder. 
+After each simulation we copy these files for further analysis 
+with the R statistical programming software.
+
 
 
 Load the package
@@ -8,7 +16,37 @@ Load the package
 library(GFPMoutput)
 ```
 
-### Import GFPM data directly after a simulation
+# 3 ways to load GFPM data into R 
+There are 3 ways to load GFPM data into R. 
+If GFPM is running on a virtual machine or on a different computer than R, then you should go with the first method, copying the PELPS folder "by hand" in a zip archive. 
+If GFPM is running on the same machine, 2 alternatives are possible below, but if you don't know what to choose from, you should be fine with the zip archive method.
+
+## Copy GFPM data from c:\\PELPS\\pelps by means of a zip archive
+Make sure you rename the "PELPS" folder into your scenario name before you compress it to zip.
+
+ 1. Rename the folder "C:\\PELPS\\PELPS" to a name of your choice.
+ For example "your_scenario_name". 
+ 2. Compress this PELPS folder as a zip file: "your_scenario_name.zip" 
+ 3. Copy the zip archive to a \\rawdata folder accessible by R.
+ 
+Now you can convert the content of this zip archive 
+to an RDATA object:
+
+```r
+savePELPSToRdata("your_scenario_name", "zip")
+```
+
+Then prepare the data for further analysis with 
+
+```r
+your_scenario_name = clean(fileName = "your_scenario_name.RDATA",
+                           scenario_name = "your_scenario_name")
+```
+
+Now you can explore the dataset in various ways. See the [explore](explore.md) document.
+
+
+## Import GFPM data directly after a simulation
 This command loads GFPM data in the form of a list of
 data frames. It saves the list in R data format
 under the folder  ./enddata.
@@ -24,149 +62,55 @@ load("enddata/your_scenario_name.RDATA")
 # You can see the begining of each data frame with the command
 lapply(scenario,head)
 ```
-If you are not interested in the internal workings of load.R and clean.R, 
-and if you only want to analyse results from one scenario,
-you can skip the rest of this document and jump to tutorial/explore.
-
-However if you want to analyse several scenarios combined, keep on reading.
-Below we demonstrate the use of the functions `savePELPSToRdata()` and `clean()`
-to read PELPS data tables.
+Now you can skip the rest of this document and jump to tutorial/[explore](explore.md).
 
 
-### Copy GFPM data in c:\PELPS\pelps with a function
-If the GFPM simulation and R analysis run on two different computers,
-it can be convenient to load the data from a named folder 
-or archive. To this end, on the GFPM machine, 
-GFPM simulation results are stored in plain text
-format in ".DAT" files under the `C:\PELPS\pelps` folder. 
-After each scenario run, copy this folder into another folder or  archive. Copying the PELPS folder can also be done by hand if R is not installed on that machine. See section below. 
+## Copy GFPM data from c:\\PELPS\\pelps with a function
+If the GFPM simulation and R analysis are on the same computer,
+This function can be used to copy the PELPS folder and 
+load the data into R. 
+After each scenario run, copy this folder into another folder or  archive. Copying the PELPS folder can also be done by hand if R is not installed on that machine (see above).
 
-In this example, we give the name "dummy" to the scenario
+In this example, we give the name "your_scenario_name" to the scenario
 
 ```r
-copy_pelps_folder(scenario_name = "dummy")
+copy_pelps_folder(scenario_name = "your_scenario_name")
 ```
 
 To save space, data can be compressed
 
 ```r
-copy_pelps_folder(scenario_name = "dummy", compression="bzip2")
+copy_pelps_folder(scenario_name = "your_scenario_name", compression="bzip2")
 ```
 
-Unfortunately zip compression is not available in writting, it can only be read by R.
-To use zip compression, follow the method "by hand"" below.
-
-### Copy GFPM data in c:\PELPS\pelps by hand
- 1. Rename the folder "C:\PELPS\PELPS" to a name of your choice.
- For example "my_scenario_name". 
- 2. Copy the renamed PELPS folder to the \rawdata folder.
-   Optionally, you can compress this PELPS folder as a zip file: "my_scenario_name.zip"
-   and copy it to the rawdata folder.
-
-
-Load a scenario in R and save it to .RDATA
------------------------------------------
-Beware that for compressed files, the internal folder in the 
-zip archive should have the same name as the zip archive itself.
-
-* Input: Raw PELPS text files (.DAT) stored in a folder or .zip archive
-* Output: Raw data.frames stored in a .RDATA file 
-
-Save the base scenario without compression to a RDATA file
+Then save the base scenario from a bzip2 archive to a RDATA file
 
 ```r
-savePELPSToRdata("base")
+savePELPSToRdata("your_scenario_name", compressed="bzip2")
 ```
 
-Save the base scenario from a bzip2 archive to a RDATA file
+Then prepare GFPM scenario data with clean()
 
 ```r
-savePELPSToRdata("base", compressed="bzip2")
+your_scenario_name = clean(fileName = "your_scenario_name.RDATA",
+                           scenario_name = "your_scenario_name")
 ```
+The `your_scenario_name` object is a list of dataframe. 
+The command `str(your_scenario_name)` gives details about the structure and content of this data object. 
 
 
-Save the base scenario from a zip archive to a RDATA file
+# More details on the clean() function
 
-```r
-savePELPSToRdata("PELPS 105Base", "zip")
-```
-
-List Zip archives available
-
-```r
-list.files("rawdata", ".zip", full.names = TRUE) 
-```
-
-```
-##  [1] "rawdata/base105high.zip"                            
-##  [2] "rawdata/base105low.zip"                             
-##  [3] "rawdata/fontleroy_brown.zip"                        
-##  [4] "rawdata/PELPS 105Base.zip"                          
-##  [5] "rawdata/PELPS 105 TFTA High Scenario revision 1.zip"
-##  [6] "rawdata/PELPS 105 TFTA Low scenario revision 1.zip" 
-##  [7] "rawdata/pelps105.zip"                               
-##  [8] "rawdata/pelps2016dolsnonewsnoswd.zip"               
-##  [9] "rawdata/pelps2016dolsOthPaper.zip"                  
-## [10] "rawdata/pelps2016noexchg.zip"                       
-## [11] "rawdata/pelps2016pmgnonews.zip"                     
-## [12] "rawdata/pelps2016simangunsong.zip"                  
-## [13] "rawdata/pelpsbase2016_backup.zip"                   
-## [14] "rawdata/pelpsbase2016old.zip"                       
-## [15] "rawdata/pelpsbase2016.zip"                          
-## [16] "rawdata/pelpslow2016.zip"                           
-## [17] "rawdata/pelpspc2016.zip"                            
-## [18] "rawdata/World105LowGDPelast.zip"                    
-## [19] "rawdata/World105NoTTIPHighGDPelast.zip"
-```
-
-
-List Raw RDATA files available
-
-```r
-list.files("rawdata", ".RDATA", full.names = TRUE) 
-```
-
-```
-##  [1] "rawdata/base105high.RDATA"                            
-##  [2] "rawdata/base105low.RDATA"                             
-##  [3] "rawdata/base.RDATA"                                   
-##  [4] "rawdata/GFPMcodes.RDATA"                              
-##  [5] "rawdata/PELPS 105Base.RDATA"                          
-##  [6] "rawdata/PELPS 105 TFTA High Scenario revision 1.RDATA"
-##  [7] "rawdata/PELPS 105 TFTA Low scenario revision 1.RDATA" 
-##  [8] "rawdata/pelps2016dolsnonewsnoswd.RDATA"               
-##  [9] "rawdata/pelps2016dolsOthPaper.RDATA"                  
-## [10] "rawdata/pelps2016noexchg.RDATA"                       
-## [11] "rawdata/pelps2016pmgnonews.RDATA"                     
-## [12] "rawdata/pelps2016simangunsong.RDATA"                  
-## [13] "rawdata/pelpsbase2016.RDATA"                          
-## [14] "rawdata/pelpslow2016.RDATA"                           
-## [15] "rawdata/PELPS October 2014 Ahmed.RDATA"               
-## [16] "rawdata/pelpspc2016.RDATA"                            
-## [17] "rawdata/World105LowGDPelast.RDATA"                    
-## [18] "rawdata/World105NoTTIPHighGDPelast.RDATA"
-```
-
-Clean a scenario
-----------------
-The archive is transformed by adding column titles, 
+This section provides more details
+about the various steps performed by the clean() function.
+PELPS data is transformed by adding column titles, 
 and translating product and country codes into product and country names. 
 available for analysis with R.
+
 * Input: Raw data.frames stored in a .RDATA file
 * Output: cleaned data.frames stored in a .RDATA file
 
-
-```r
-baseScenario = clean("PELPS 105Base.RDATA", "Base")
-```
-The `baseScenario` object is a list of dataframe. 
-The command `str(baseScenario)` gives details about the structure and content of this data object. 
-Now you can explore the dataset in various ways. See the ./docs folder.
-
-
-Working examples of clean functions
------------------------------------
-### Load raw PELPS tables from a .RDATA file
+## Load raw PELPS tables from a .RDATA file
 
 ```r
 print(load("rawdata/PELPS 105Base.RDATA"))
@@ -242,7 +186,7 @@ llply(PELPS,head)
 ## [1] 5
 ```
 
-### Example using the function splittrade 
+## Example using the function splittrade 
 
 ```r
 PELPS2 = splittrade(PELPS)
@@ -269,7 +213,7 @@ lapply(PELPS2[c("trade", "import", "export")],nrow) #number of rows in PELPS2
 ## [1] 1010
 ```
 
-### Example using the function reshapeLong
+## Example using the function reshapeLong
 
 ```r
 head(PELPS$demand)
@@ -300,7 +244,7 @@ head(demand)
 ## Da086.1      1     58  Demand a086
 ```
 
-### Example using the function add product and country
+## Example using the function add product and country
 
 ```r
 demand = addProductAndCountry(demand)
@@ -324,7 +268,7 @@ head(demand)
 ## 6      2  120.9  Demand
 ```
 
-### Example using reshapeLong and addProductAndCountry on World price
+## Example using reshapeLong and addProductAndCountry on World price
 
 ```r
 wp = reshapeLong(PELPS$worldPrice, "World_Price")
@@ -356,4 +300,18 @@ head(wp)
 ## 4           80 Fuelwood      3        58.8
 ## 5           80 Fuelwood      5        56.3
 ## 6           81 IndRound      3        97.2
+```
+
+
+# List available files
+List Zip archives available
+
+```r
+list.files("rawdata", ".zip", full.names = TRUE) 
+```
+
+List Raw RDATA files available
+
+```r
+list.files("rawdata", ".RDATA", full.names = TRUE) 
 ```
