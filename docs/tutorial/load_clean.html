@@ -155,7 +155,11 @@ $(document).ready(function () {
 <p>Then prepare the data for further analysis with</p>
 <pre class="r"><code>your_scenario_name = clean(fileName = &quot;your_scenario_name.RDATA&quot;,
                            scenario_name = &quot;your_scenario_name&quot;)</code></pre>
-<p>Now you can explore the dataset in various ways. See the <a href="explore.md">explore</a> document.</p>
+<p>If you have 2 scenarios you can clean them and combine them in a list object with</p>
+<pre class="r"><code>scenario1 &lt;- clean(&quot;scenario1.RDATA&quot;, &quot;scenario1&quot;)
+scenario2 &lt;- clean(&quot;scenario2.RDATA&quot;, &quot;scenario2&quot;)
+all_your_scenarios &lt;- bindScenarios(scenario1, scenario2)</code></pre>
+<p>Then you can explore the dataset following examples available in the <a href="explore.md">explore</a> document.</p>
 </div>
 <div id="import-gfpm-data-directly-after-a-simulation" class="section level2">
 <h2>Import GFPM data directly after a simulation</h2>

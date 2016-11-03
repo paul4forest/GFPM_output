@@ -52,7 +52,16 @@ your_scenario_name = clean(fileName = "your_scenario_name.RDATA",
 
 ```
 
-Now you can explore the dataset in various ways. See the [explore](explore.md) document.
+If you have 2 scenarios you can clean them and combine them
+in a list object with 
+```{r eval=FALSE}
+scenario1 <- clean("scenario1.RDATA", "scenario1")
+scenario2 <- clean("scenario2.RDATA", "scenario2")
+all_your_scenarios <- bindScenarios(scenario1, scenario2)
+```
+
+
+Then you can explore the dataset following examples available in the [explore](explore.md) document.
 
 
 ## Import GFPM data directly after a simulation
